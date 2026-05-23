@@ -1,0 +1,33 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Roving Tab Index Example</title>
+</head>
+<body>
+
+<ul role="tablist">
+  <li role="none"><button role="tab" type="button">Tab 1</button></li>
+  <li role="none"><button role="tab" type="button">Tab 2</button></li>
+  <li role="none"><button role="tab" type="button">Tab 3</button></li>
+</ul>
+
+<ul role="tablist">
+  <li role="none"><button role="tab" type="button">Tab 1</button></li>
+  <li role="none"><button role="tab" type="button">Tab 2</button></li>
+  <li role="none"><button role="tab" type="button">Tab 3</button></li>
+</ul>
+
+<script type="module">
+import { createRovingTabIndex } from './roving.js';
+
+const tablists = document.querySelectorAll('[role="tablist"]');
+
+tablists.forEach(tablist => {
+  createRovingTabIndex(tablist, {
+    direction: 'horizontal',
+    wrap: true,
+  });
+});
+</script>
+</body>
+</html>
