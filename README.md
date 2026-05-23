@@ -1,9 +1,9 @@
 # Roving Tabindex
 
-Lightweight roving tabindex utility with fully focus management.
+Lightweight roving tabindex utility with fully focus management. Designed for accessible menus, tabs, toolbars, and composite widgets.
 
 > [!NOTE]
-> Focus traversal works across portals using invisible sentinels and composed-tree-aware focus detection powered by [Power Focusable](https://github.com/y14e/power-focusable).
+> Focus traversal works across shadow DOM boundaries using composed-tree-aware focus detection powered by [Power Focusable](https://github.com/y14e/power-focusable).
 
 ## Install
 
@@ -27,7 +27,7 @@ import { createRovingTabIndex } from 'https://unpkg.com/@y14e/roving-tabindex/di
 
 ### `createRovingTabIndex`
 
-Creates a portal and preserves keyboard focus order between the original DOM and the portal.
+Creates a roving tabindex controller and preserves a single tabbable element within the container while enabling keyboard navigation between focusable items.
 
 ```ts
 const cleanup = createRovingTabIndex(container, options);
@@ -41,7 +41,7 @@ const cleanup = createRovingTabIndex(container, options);
 
 ```ts
 interface RovingTabIndexOptions {
-  direction?: 'horizontal' | 'vertical';
+  direction?: 'horizontal' | 'vertical'; // default: both (undefined)
   selector?: string;
   wrap?: boolean;                        // default: false
 }
