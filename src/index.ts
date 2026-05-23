@@ -58,7 +58,6 @@ class RovingTabIndex {
   constructor(container: Element, options: RovingTabIndexOptions = {}) {
     this.#container = container;
     this.#options = options;
-
     const { direction, selector, wrap = false } = this.#options;
 
     if (direction && !['horizontal', 'vertical'].includes(direction)) {
