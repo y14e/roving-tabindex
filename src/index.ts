@@ -1,8 +1,9 @@
 /**
  * Roving Tabindex
  * Lightweight roving tabindex utility with fully focus management.
+ * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 0.0.1
+ * @version 1.0.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -20,7 +21,7 @@ import { getFocusables } from 'power-focusable';
 // -----------------------------------------------------------------------------
 
 interface RovingTabIndexOptions {
-  readonly direction?: 'horizontal' | 'vertical' | 'both';
+  readonly direction?: 'horizontal' | 'vertical';
   readonly selector?: string;
   readonly wrap?: boolean;
 }
@@ -50,12 +51,32 @@ class RovingTabIndex {
   #options: RovingTabIndexOptions;
   #focusables = new Set<Element>();
   #tabIndexes = new Map<Element, string | null>();
+  #selectorFilter: (_: Element) => boolean;
   #controller: AbortController | null = null;
   #isDestroyed = false;
 
   constructor(container: Element, options: RovingTabIndexOptions = {}) {
     this.#container = container;
     this.#options = options;
+
+    const { direction, selector, wrap = false } = this.#options;
+
+    if (direction && !['horizontal', 'vertical'].includes(direction)) {
+      console.warn('Invalid direction. Fallback: both (undefined).');
+      Object.assign(this.#options, { direction: undefined });
+    }
+
+    if (typeof selector !== 'string') {
+      console.warn('Invalid selector. Fallback: all focusable elements.');
+      Object.assign(this.#options, { selector: undefined });
+    }
+
+    if (typeof wrap !== 'boolean') {
+      console.warn('Invalid wrap. Fallback: false.');
+      Object.assign(this.#options, { wrap: false });
+    }
+
+    this.#selectorFilter = this.#createSelectorFilter();
     this.#initialize();
   }
 
@@ -105,7 +126,7 @@ class RovingTabIndex {
     }
 
     const { direction } = this.#options;
-    const isBoth = direction === undefined;
+    const isBoth = !direction;
     const isHorizontal = direction === 'horizontal';
 
     if (
@@ -123,20 +144,24 @@ class RovingTabIndex {
       return;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
     const active = getActiveElement();
 
     if (!(active instanceof HTMLElement)) {
       return;
     }
 
-    const { wrap = true } = this.#options;
-
     const focusables = this.#getFocusables();
+
+    if (!focusables.includes(active)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
     const currentIndex = focusables.indexOf(active);
     let rawIndex: number;
     let newIndex = currentIndex;
+    const { wrap = false } = this.#options;
 
     switch (key) {
       case 'End':
@@ -171,8 +196,11 @@ class RovingTabIndex {
 
   #update(active: Element | null): void {
     const current = new Set<Element>([
-      ...getFocusables(this.#container, { composed: true }),
       ...this.#getFocusables(),
+      ...getFocusables(this.#container, {
+        composed: true,
+        filter: this.#selectorFilter,
+      }),
     ]);
 
     // Removed
@@ -219,12 +247,16 @@ class RovingTabIndex {
     });
   }
 
+  #createSelectorFilter(): (element: Element) => boolean {
+    const { selector } = this.#options;
+    return (element) => !selector || element.matches(selector);
+  }
+
   #getFocusables(): Element[] {
     return getFocusables(this.#container, {
       composed: true,
-      include: (element: Element) => {
-        return this.#focusables.has(element);
-      },
+      filter: this.#selectorFilter,
+      include: (element) => this.#focusables.has(element),
     });
   }
 }

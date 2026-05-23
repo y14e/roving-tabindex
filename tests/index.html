@@ -5,28 +5,39 @@
 </head>
 <body>
 
-<ul role="tablist">
+<ul id="tablist-1" role="tablist">
   <li role="none"><button role="tab" type="button">Tab 1</button></li>
   <li role="none"><button role="tab" type="button">Tab 2</button></li>
+  <li role="none"><a href="#">no tab</a></li>
   <li role="none"><button role="tab" type="button">Tab 3</button></li>
+  <li role="none"><button role="tab" type="button">Tab 4</button></li>
+  <li role="none"><a href="#">no tab</a></li>
+  <li role="none"><button role="tab" type="button">Tab 5</button></li>
+  <li role="none"><button role="tab" type="button">Tab 6</button></li>
 </ul>
 
-<ul role="tablist">
+<ul id="tablist-2" role="tablist">
   <li role="none"><button role="tab" type="button">Tab 1</button></li>
   <li role="none"><button role="tab" type="button">Tab 2</button></li>
   <li role="none"><button role="tab" type="button">Tab 3</button></li>
+  <li role="none"><a href="#">no tab</a></li>
+  <li role="none"><button role="tab" type="button">Tab 4</button></li>
+  <li role="none"><button role="tab" type="button">Tab 5</button></li>
+  <li role="none"><button role="tab" type="button">Tab 6</button></li>
+  <li role="none"><a href="#">no tab</a></li>
 </ul>
 
 <script type="module">
-import { createRovingTabIndex } from './roving.js';
+import { createRovingTabIndex } from './index.js';
 
-const tablists = document.querySelectorAll('[role="tablist"]');
-
-tablists.forEach(tablist => {
-  createRovingTabIndex(tablist, {
-    direction: 'horizontal',
-    wrap: true,
-  });
+createRovingTabIndex(document.getElementById('tablist-1'), {
+  direction: 'horizontal',
+  selector: '[role="tab"]',
+  wrap: true,
+});
+createRovingTabIndex(document.getElementById('tablist-2'), {
+  direction: 'vertical',
+  selector: '[role="tab"]',
 });
 </script>
 </body>
