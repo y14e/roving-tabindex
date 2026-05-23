@@ -27,7 +27,7 @@ import { createRovingTabIndex } from 'https://unpkg.com/@y14e/roving-tabindex/di
 
 ### `createRovingTabIndex`
 
-Creates a portal and preserves keyboard focus order between the original DOM and the portal.
+Creates a roving tabindex within the container.
 
 ```ts
 const cleanup = createRovingTabIndex(container, options);
