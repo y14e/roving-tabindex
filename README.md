@@ -6,6 +6,7 @@ Designed for accessible menus, tabs, toolbars, and composite widgets.
 > [!NOTE]
 > Focus traversal works across shadow DOM boundaries using composed-tree-aware focus detection powered by [Power Focusable](https://github.com/y14e/power-focusable).
 
+<!--
 ## Install
 
 ```bash
@@ -23,6 +24,7 @@ import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-
 // or
 import { createRovingTabIndex } from 'https://unpkg.com/@y14e/roving-tabindex/dist/index.js';
 ```
+-->
 
 ## 📦 APIs
 
