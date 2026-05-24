@@ -43,9 +43,14 @@ const cleanup = createRovingTabIndex(container, options);
 interface RovingTabIndexOptions {
   direction?: 'horizontal' | 'vertical'; // default: both (undefined)
   selector?: string;
+  typeahead?: boolean;                   // default: false
   wrap?: boolean;                        // default: false
 }
 ```
+
+### `typeahead`
+
+If `true`, enables character-based focus navigation. Typing a character moves focus to the next matching element.
 
 ### `wrap`
 
