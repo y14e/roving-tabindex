@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.0.1
+ * @version 1.0.2
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -14,6 +14,7 @@
 // Imports
 // -----------------------------------------------------------------------------
 
+import { restoreAttributes, saveAttributes } from '@y14e/attributes-utils';
 import { getFocusables } from 'power-focusable';
 
 // -----------------------------------------------------------------------------
@@ -67,7 +68,6 @@ class RovingTabIndex {
   #container!: Element;
   #options: RovingTabIndexOptions;
   #focusables = new Set<Element>();
-  #tabIndexes = new Map<Element, string | null>();
   #selectorFilter: (_: Element) => boolean;
   #controller: AbortController | null = null;
   #isDestroyed = false;
@@ -87,19 +87,8 @@ class RovingTabIndex {
     this.#isDestroyed = true;
     this.#controller?.abort();
     this.#controller = null;
-
-    this.#focusables.forEach((focusable) => {
-      const index = this.#tabIndexes.get(focusable);
-
-      if (index == null) {
-        focusable.removeAttribute('tabindex');
-      } else {
-        focusable.setAttribute('tabindex', index);
-      }
-    });
-
+    restoreAttributes([...this.#focusables]);
     this.#focusables.clear();
-    this.#tabIndexes.clear();
     this.#container.removeAttribute('data-roving-tabindex-initialized');
   }
 
@@ -209,17 +198,10 @@ class RovingTabIndex {
       }
 
       if (focusable.isConnected) {
-        const index = this.#tabIndexes.get(focusable);
-
-        if (index == null) {
-          focusable.removeAttribute('tabindex');
-        } else {
-          focusable.setAttribute('tabindex', index);
-        }
+        restoreAttributes([focusable]);
       }
 
       this.#focusables.delete(focusable);
-      this.#tabIndexes.delete(focusable);
     });
 
     // Added
@@ -229,7 +211,7 @@ class RovingTabIndex {
       }
 
       this.#focusables.add(c);
-      this.#tabIndexes.set(c, c.getAttribute('tabindex'));
+      saveAttributes([c], ['tabindex']);
       c.setAttribute('tabindex', '-1');
     });
 

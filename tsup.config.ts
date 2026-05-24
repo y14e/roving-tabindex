@@ -7,5 +7,5 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   minify: false,
   treeshake: true,
-  noExternal: ['power-focusable'],
+  noExternal: ['@y14e/attributes-utils', 'power-focusable'],
 });
