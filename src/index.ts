@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.0.0
+ * @version 1.0.1
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -38,6 +38,23 @@ export function createRovingTabIndex(
     throw new Error('Invalid container element');
   }
 
+  const { direction, selector, wrap = false } = options;
+
+  if (direction && !['horizontal', 'vertical'].includes(direction)) {
+    console.warn('Invalid direction. Fallback: both (undefined).');
+    Object.assign(options, { direction: undefined });
+  }
+
+  if (typeof selector !== 'string') {
+    console.warn('Invalid selector. Fallback: all focusable elements.');
+    Object.assign(options, { selector: undefined });
+  }
+
+  if (typeof wrap !== 'boolean') {
+    console.warn('Invalid wrap. Fallback: false.');
+    Object.assign(options, { wrap: false });
+  }
+
   const roving = new RovingTabIndex(container, options);
   return () => roving.destroy();
 }
@@ -58,23 +75,6 @@ class RovingTabIndex {
   constructor(container: Element, options: RovingTabIndexOptions = {}) {
     this.#container = container;
     this.#options = options;
-    const { direction, selector, wrap = false } = this.#options;
-
-    if (direction && !['horizontal', 'vertical'].includes(direction)) {
-      console.warn('Invalid direction. Fallback: both (undefined).');
-      Object.assign(this.#options, { direction: undefined });
-    }
-
-    if (typeof selector !== 'string') {
-      console.warn('Invalid selector. Fallback: all focusable elements.');
-      Object.assign(this.#options, { selector: undefined });
-    }
-
-    if (typeof wrap !== 'boolean') {
-      console.warn('Invalid wrap. Fallback: false.');
-      Object.assign(this.#options, { wrap: false });
-    }
-
     this.#selectorFilter = this.#createSelectorFilter();
     this.#initialize();
   }
@@ -248,7 +248,9 @@ class RovingTabIndex {
 
   #createSelectorFilter(): (element: Element) => boolean {
     const { selector } = this.#options;
-    return (element) => !selector || element.matches(selector);
+    return (element) =>
+      !selector ||
+      [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
   #getFocusables(): Element[] {
