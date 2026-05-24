@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.0.2
+ * @version 1.1.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -24,6 +24,7 @@ import { getFocusables } from 'power-focusable';
 interface RovingTabIndexOptions {
   readonly direction?: 'horizontal' | 'vertical';
   readonly selector?: string;
+  readonly typeahead?: boolean;
   readonly wrap?: boolean;
 }
 
@@ -39,7 +40,7 @@ export function createRovingTabIndex(
     throw new Error('Invalid container element');
   }
 
-  const { direction, selector, wrap = false } = options;
+  const { direction, selector, typeahead = false, wrap = false } = options;
 
   if (direction && !['horizontal', 'vertical'].includes(direction)) {
     console.warn('Invalid direction. Fallback: both (undefined).');
@@ -49,6 +50,11 @@ export function createRovingTabIndex(
   if (typeof selector !== 'string') {
     console.warn('Invalid selector. Fallback: all focusable elements.');
     Object.assign(options, { selector: undefined });
+  }
+
+  if (typeof typeahead !== 'boolean') {
+    console.warn('Invalid typeahead. Fallback: false.');
+    Object.assign(options, { typeahead: false });
   }
 
   if (typeof wrap !== 'boolean') {
@@ -68,6 +74,7 @@ class RovingTabIndex {
   #container!: Element;
   #options: RovingTabIndexOptions;
   #focusables = new Set<Element>();
+  #focusablesByFirstChar = new Map<string, Element[]>();
   #selectorFilter: (_: Element) => boolean;
   #controller: AbortController | null = null;
   #isDestroyed = false;
@@ -89,6 +96,7 @@ class RovingTabIndex {
     this.#controller = null;
     restoreAttributes([...this.#focusables]);
     this.#focusables.clear();
+    this.#focusablesByFirstChar.clear();
     this.#container.removeAttribute('data-roving-tabindex-initialized');
   }
 
@@ -113,7 +121,7 @@ class RovingTabIndex {
       return;
     }
 
-    const { direction } = this.#options;
+    const { direction, typeahead, wrap } = this.#options;
     const isBoth = !direction;
     const isHorizontal = direction === 'horizontal';
 
@@ -129,7 +137,13 @@ class RovingTabIndex {
           : [`Arrow${isHorizontal ? 'Right' : 'Down'}`]),
       ].includes(key)
     ) {
-      return;
+      if (
+        !typeahead ||
+        !/^\S$/i.test(key) ||
+        !this.#focusablesByFirstChar.has(key.toLowerCase())
+      ) {
+        return;
+      }
     }
 
     const active = getActiveElement();
@@ -147,9 +161,9 @@ class RovingTabIndex {
     event.preventDefault();
     event.stopPropagation();
     const currentIndex = focusables.indexOf(active);
-    let rawIndex: number;
+    let rawIndex = currentIndex;
     let newIndex = currentIndex;
-    const { wrap = false } = this.#options;
+    let target = focusables;
 
     switch (key) {
       case 'End':
@@ -170,9 +184,20 @@ class RovingTabIndex {
           ? rawIndex % focusables.length
           : Math.min(rawIndex, focusables.length - 1);
         break;
+      default: {
+        if (!typeahead) {
+          break;
+        }
+
+        target = this.#focusablesByFirstChar.get(key.toLowerCase()) ?? [];
+        const foundIndex = target.findIndex(
+          (focusable) => focusables.indexOf(focusable) > currentIndex,
+        );
+        newIndex = foundIndex !== -1 ? foundIndex : 0;
+      }
     }
 
-    const focusable = focusables.at(newIndex);
+    const focusable = target.at(newIndex);
 
     if (!focusable) {
       return;
@@ -202,6 +227,13 @@ class RovingTabIndex {
       }
 
       this.#focusables.delete(focusable);
+      this.#focusablesByFirstChar.forEach((focusables) => {
+        const index = focusables.indexOf(focusable);
+
+        if (index !== -1) {
+          focusables.splice(index, 1);
+        }
+      });
     });
 
     // Added
@@ -213,6 +245,26 @@ class RovingTabIndex {
       this.#focusables.add(c);
       saveAttributes([c], ['tabindex']);
       c.setAttribute('tabindex', '-1');
+
+      if (!this.#options.typeahead) {
+        return;
+      }
+
+      // Typeahead
+      const shortcuts = c.ariaKeyShortcuts;
+      const keys = (shortcuts?.split(/\s+/) ?? [c.textContent?.trim()[0] ?? ''])
+        .filter((key) => /^\S$/i.test(key))
+        .map((key) => key.toLowerCase());
+
+      keys.forEach((key) => {
+        const focusables = this.#focusablesByFirstChar.get(key) ?? [];
+        focusables.push(c);
+        this.#focusablesByFirstChar.set(key, focusables);
+      });
+
+      const first = keys[0];
+      saveAttributes([c], ['aria-keyshortcuts']);
+      !shortcuts && first && c.setAttribute('aria-keyshortcuts', first);
     });
 
     if (active && this.#focusables.has(active)) {

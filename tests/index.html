@@ -6,19 +6,32 @@
 <body>
 
 <ul id="tablist-1" role="tablist">
-  <li role="none"><button role="tab" type="button">Tab 1</button></li>
-  <li role="none"><button role="tab" type="button">Tab 2</button></li>
+  <li role="none"><button role="tab" type="button">A tab 1</button></li>
+  <li role="none"><button role="tab" type="button">B tab 2</button></li>
   <li role="none"><a href="#">no tab</a></li>
-  <li role="none"><button role="tab" type="button">Tab 3</button></li>
-  <li role="none"><button role="tab" type="button">Tab 4</button></li>
+  <li role="none"><button role="tab" type="button">B tab 3</button></li>
+  <li role="none"><button role="tab" type="button">A tab 4</button></li>
   <li role="none"><a href="#">no tab</a></li>
   <li role="none"><button role="tab" type="button">Tab 5</button></li>
   <li role="none"><button role="tab" type="button">Tab 6</button></li>
 </ul>
 
-<p><button id="destroy-1">destroy 1</button></p>
+<p><button id="destroy-1" type="button">destroy 1</button></p>
 
 <ul id="tablist-2" role="tablist">
+  <li role="none"><button role="tab" type="button">A tab 1</button></li>
+  <li role="none"><button role="tab" type="button">A tab 2</button></li>
+  <li role="none"><button role="tab" type="button">B tab 3</button></li>
+  <li role="none"><a href="#">no tab</a></li>
+  <li role="none"><button role="tab" type="button">B tab 4</button></li>
+  <li role="none"><button role="tab" type="button">C tab 5</button></li>
+  <li role="none"><button role="tab" type="button">C tab 6</button></li>
+  <li role="none"><a href="#">no tab</a></li>
+</ul>
+
+<p><button id="destroy-2" type="button">destroy 2</button></p>
+
+<ul id="tablist-3" role="tablist">
   <li role="none"><button role="tab" type="button">Tab 1</button></li>
   <li role="none"><button role="tab" type="button">Tab 2</button></li>
   <li role="none"><button role="tab" type="button">Tab 3</button></li>
@@ -29,7 +42,7 @@
   <li role="none"><a href="#">no tab</a></li>
 </ul>
 
-<p><button id="destroy-2">destroy 2</button></p>
+<p><button id="destroy-3" type="button">destroy 3</button></p>
 
 <script type="module">
 import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex';
@@ -37,15 +50,19 @@ import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex';
 const cleanupRoving1 = createRovingTabIndex(document.getElementById('tablist-1'), {
   direction: 'horizontal',
   selector: '[role="tab"]',
+  typeahead: true,
   wrap: true,
 });
 const cleanupRoving2 = createRovingTabIndex(document.getElementById('tablist-2'), {
   direction: 'vertical',
   selector: '[role="tab"]',
+  typeahead: true,
 });
+const cleanupRoving3 = createRovingTabIndex(document.getElementById('tablist-3'));
 
 document.getElementById('destroy-1').addEventListener('click', () => cleanupRoving1());
 document.getElementById('destroy-2').addEventListener('click', () => cleanupRoving2());
+document.getElementById('destroy-3').addEventListener('click', () => cleanupRoving3());
 </script>
 </body>
 </html>
