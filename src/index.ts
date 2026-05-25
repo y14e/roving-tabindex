@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.3
+ * @version 1.2.4
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -219,7 +219,7 @@ class RovingTabIndex {
   };
 
   #update(active: Element | null): void {
-    const current = new Set<Element>([
+    const focusables = new Set<Element>([
       ...this.#getFocusables(),
       ...getFocusables(this.#container, {
         composed: true,
@@ -229,7 +229,7 @@ class RovingTabIndex {
 
     // Removed
     for (const focusable of this.#focusables) {
-      if (current.has(focusable)) {
+      if (focusables.has(focusable)) {
         continue;
       }
 
@@ -248,42 +248,42 @@ class RovingTabIndex {
     }
 
     // Added
-    for (const c of current) {
-      if (this.#focusables.has(c)) {
+    for (const focusable of focusables) {
+      if (this.#focusables.has(focusable)) {
         continue;
       }
 
-      this.#focusables.add(c);
-      saveAttributes([c], ['tabindex']);
-      c.setAttribute('tabindex', '-1');
+      this.#focusables.add(focusable);
+      saveAttributes([focusable], ['tabindex']);
+      focusable.setAttribute('tabindex', '-1');
 
       if (!this.#options.typeahead) {
         continue;
       }
 
       // Typeahead
-      const value = c.ariaKeyShortcuts?.trim();
+      const raw = focusable.ariaKeyShortcuts?.trim();
       const keys = new Set(
-        value
-          ? value
+        raw
+          ? raw
               .split(/\s+/)
               .filter((key) => /^\S$/i.test(key))
               .map((key) => key.toUpperCase())
           : [],
       );
-      const char = c.textContent?.trim()?.at(0)?.toUpperCase();
+      const char = focusable.textContent?.trim()?.at(0)?.toUpperCase();
 
       if (char) {
         keys.add(char);
-        saveAttributes([c], ['aria-keyshortcuts']);
-        addTokenToAttribute(c, 'aria-keyshortcuts', char, {
+        saveAttributes([focusable], ['aria-keyshortcuts']);
+        addTokenToAttribute(focusable, 'aria-keyshortcuts', char, {
           caseInsensitive: true,
         });
       }
 
       keys.forEach((key) => {
         const focusables = this.#focusablesByFirstChar.get(key) ?? [];
-        focusables.push(c);
+        focusables.push(focusable);
         this.#focusablesByFirstChar.set(key, focusables);
       });
     }
