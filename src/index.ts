@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.1
+ * @version 1.2.2
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -279,7 +279,9 @@ class RovingTabIndex {
       if (char) {
         keys.add(char);
         saveAttributes([c], ['aria-keyshortcuts']);
-        addTokenToAttribute(c, 'aria-keyshortcuts', char);
+        addTokenToAttribute(c, 'aria-keyshortcuts', char, {
+          caseInsensitive: true,
+        });
       }
 
       keys.forEach((key) => {
