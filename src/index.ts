@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.2
+ * @version 1.2.3
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -149,15 +149,12 @@ class RovingTabIndex {
         ...(isBoth
           ? ['ArrowRight', 'ArrowDown']
           : [`Arrow${isHorizontal ? 'Right' : 'Down'}`]),
-      ].includes(key)
-    ) {
-      if (
-        !typeahead ||
+      ].includes(key) &&
+      (!typeahead ||
         !/^\S$/i.test(key) ||
-        !this.#focusablesByFirstChar.has(key.toUpperCase())
-      ) {
-        return;
-      }
+        !this.#focusablesByFirstChar.has(key.toUpperCase()))
+    ) {
+      return;
     }
 
     const active = getActiveElement();
@@ -265,10 +262,10 @@ class RovingTabIndex {
       }
 
       // Typeahead
-      const shortcuts = c.ariaKeyShortcuts?.trim() ?? '';
+      const value = c.ariaKeyShortcuts?.trim();
       const keys = new Set(
-        shortcuts
-          ? shortcuts
+        value
+          ? value
               .split(/\s+/)
               .filter((key) => /^\S$/i.test(key))
               .map((key) => key.toUpperCase())
