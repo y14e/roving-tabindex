@@ -1,6 +1,6 @@
 {
   "name": "@y14e/roving-tabindex",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "Lightweight roving tabindex utility with fully focus management",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -50,7 +50,7 @@
   "devDependencies": {
     "@y14e/attributes-utils": "^1.0.0",
     "bun-types": "latest",
-    "power-focusable": "^4.1.5",
+    "power-focusable": "^4.1.7",
     "tsup": "^8.0.0",
     "typescript": "^5.6.0"
   },
