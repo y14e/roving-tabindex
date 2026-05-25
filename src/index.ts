@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.1.1
+ * @version 1.1.2
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -14,7 +14,11 @@
 // Imports
 // -----------------------------------------------------------------------------
 
-import { restoreAttributes, saveAttributes } from '@y14e/attributes-utils';
+import {
+  addTokenToAttribute,
+  restoreAttributes,
+  saveAttributes,
+} from '@y14e/attributes-utils';
 import { getFocusables } from 'power-focusable';
 
 // -----------------------------------------------------------------------------
@@ -42,13 +46,18 @@ export function createRovingTabIndex(
 
   const { direction, selector, typeahead = false, wrap = false } = options;
 
-  if (typeof direction !== 'undefined' && !['horizontal', 'vertical'].includes(direction)) {
+  if (
+    typeof direction !== 'undefined' &&
+    !['horizontal', 'vertical'].includes(direction)
+  ) {
     console.warn('Invalid direction. Fallback: both (undefined).');
     Object.assign(options, { direction: undefined });
   }
 
   if (typeof selector !== 'undefined' && typeof selector !== 'string') {
-    console.warn('Invalid selector. Fallback: all focusable elements.');
+    console.warn(
+      'Invalid selector. Fallback: all focusable elements (undefined).',
+    );
     Object.assign(options, { selector: undefined });
   }
 
@@ -161,7 +170,7 @@ class RovingTabIndex {
     event.preventDefault();
     event.stopPropagation();
     const currentIndex = focusables.indexOf(active);
-    let rawIndex = currentIndex;
+    let rawIndex: number;
     let newIndex = currentIndex;
     let target = focusables;
 
@@ -251,20 +260,28 @@ class RovingTabIndex {
       }
 
       // Typeahead
-      const shortcuts = c.ariaKeyShortcuts;
-      const keys = (shortcuts?.split(/\s+/) ?? [c.textContent?.trim()[0] ?? ''])
-        .filter((key) => /^\S$/i.test(key))
-        .map((key) => key.toLowerCase());
+      const shortcuts = c.ariaKeyShortcuts?.trim() ?? '';
+      const keys = new Set(
+        shortcuts
+          ? shortcuts
+              .split(/\s+/)
+              .filter((key) => /^\S$/i.test(key))
+              .map((key) => key.toLowerCase())
+          : [],
+      );
+      const char = c.textContent?.trim()?.at(0)?.toLowerCase();
+
+      if (char) {
+        keys.add(char);
+        saveAttributes([c], ['aria-keyshortcuts']);
+        addTokenToAttribute(c, 'aria-keyshortcuts', char);
+      }
 
       keys.forEach((key) => {
         const focusables = this.#focusablesByFirstChar.get(key) ?? [];
         focusables.push(c);
         this.#focusablesByFirstChar.set(key, focusables);
       });
-
-      const first = keys[0];
-      saveAttributes([c], ['aria-keyshortcuts']);
-      !shortcuts && first && c.setAttribute('aria-keyshortcuts', first);
     });
 
     if (active && this.#focusables.has(active)) {
