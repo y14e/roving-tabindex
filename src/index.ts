@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.1.2
+ * @version 1.1.3
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -26,8 +26,8 @@ import { getFocusables } from 'power-focusable';
 // -----------------------------------------------------------------------------
 
 interface RovingTabIndexOptions {
-  readonly direction?: 'horizontal' | 'vertical';
-  readonly selector?: string;
+  readonly direction?: 'horizontal' | 'vertical' | undefined;
+  readonly selector?: string | undefined;
   readonly typeahead?: boolean;
   readonly wrap?: boolean;
 }
@@ -44,34 +44,39 @@ export function createRovingTabIndex(
     throw new Error('Invalid container element');
   }
 
-  const { direction, selector, typeahead = false, wrap = false } = options;
+  let { direction, selector, typeahead = false, wrap = false } = options;
 
   if (
     typeof direction !== 'undefined' &&
     !['horizontal', 'vertical'].includes(direction)
   ) {
     console.warn('Invalid direction. Fallback: both (undefined).');
-    Object.assign(options, { direction: undefined });
+    direction = undefined;
   }
 
   if (typeof selector !== 'undefined' && typeof selector !== 'string') {
     console.warn(
       'Invalid selector. Fallback: all focusable elements (undefined).',
     );
-    Object.assign(options, { selector: undefined });
+    selector = undefined;
   }
 
   if (typeof typeahead !== 'boolean') {
     console.warn('Invalid typeahead. Fallback: false.');
-    Object.assign(options, { typeahead: false });
+    typeahead = false;
   }
 
   if (typeof wrap !== 'boolean') {
     console.warn('Invalid wrap. Fallback: false.');
-    Object.assign(options, { wrap: false });
+    wrap = false;
   }
 
-  const roving = new RovingTabIndex(container, options);
+  const roving = new RovingTabIndex(container, {
+    direction,
+    selector,
+    typeahead,
+    wrap,
+  });
   return () => roving.destroy();
 }
 
