@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.4
+ * @version 1.2.5
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -163,18 +163,18 @@ class RovingTabIndex {
       return;
     }
 
-    const focusables = this.#getFocusables();
+    const current = this.#getFocusables();
 
-    if (!focusables.includes(active)) {
+    if (!current.includes(active)) {
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
-    const currentIndex = focusables.indexOf(active);
+    const currentIndex = current.indexOf(active);
     let rawIndex: number;
     let newIndex = currentIndex;
-    let target = focusables;
+    let target = current;
 
     switch (key) {
       case 'End':
@@ -192,8 +192,8 @@ class RovingTabIndex {
       case 'ArrowDown':
         rawIndex = currentIndex + 1;
         newIndex = wrap
-          ? rawIndex % focusables.length
-          : Math.min(rawIndex, focusables.length - 1);
+          ? rawIndex % current.length
+          : Math.min(rawIndex, current.length - 1);
         break;
       default: {
         if (!typeahead) {
@@ -202,7 +202,7 @@ class RovingTabIndex {
 
         target = this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [];
         const foundIndex = target.findIndex(
-          (focusable) => focusables.indexOf(focusable) > currentIndex,
+          (focusable) => current.indexOf(focusable) > currentIndex,
         );
         newIndex = foundIndex !== -1 ? foundIndex : 0;
       }
@@ -219,7 +219,7 @@ class RovingTabIndex {
   };
 
   #update(active: Element | null): void {
-    const focusables = new Set<Element>([
+    const current = new Set<Element>([
       ...this.#getFocusables(),
       ...getFocusables(this.#container, {
         composed: true,
@@ -229,7 +229,7 @@ class RovingTabIndex {
 
     // Removed
     for (const focusable of this.#focusables) {
-      if (focusables.has(focusable)) {
+      if (current.has(focusable)) {
         continue;
       }
 
@@ -241,14 +241,14 @@ class RovingTabIndex {
       this.#focusablesByFirstChar.forEach((focusables) => {
         const index = focusables.indexOf(focusable);
 
-        if (index !== -1) {
+        if (index >= 0) {
           focusables.splice(index, 1);
         }
       });
     }
 
     // Added
-    for (const focusable of focusables) {
+    for (const focusable of current) {
       if (this.#focusables.has(focusable)) {
         continue;
       }
@@ -262,10 +262,10 @@ class RovingTabIndex {
       }
 
       // Typeahead
-      const raw = focusable.ariaKeyShortcuts?.trim();
+      const value = focusable.ariaKeyShortcuts?.trim();
       const keys = new Set(
-        raw
-          ? raw
+        value
+          ? value
               .split(/\s+/)
               .filter((key) => /^\S$/i.test(key))
               .map((key) => key.toUpperCase())
