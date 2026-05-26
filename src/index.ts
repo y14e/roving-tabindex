@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.5
+ * @version 1.2.6
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -41,7 +41,7 @@ export function createRovingTabIndex(
   options: RovingTabIndexOptions = {},
 ): () => void {
   if (!(container instanceof Element)) {
-    throw new Error('Invalid container element');
+    throw new TypeError('Invalid container element');
   }
 
   let { direction, selector, typeahead = false, wrap = false } = options;
