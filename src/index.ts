@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.10
+ * @version 1.2.11
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -200,10 +200,7 @@ class RovingTabIndex {
           : Math.min(rawIndex, current.length - 1);
         break;
       default: {
-        if (!typeahead) {
-          break;
-        }
-
+        // Typeahead
         target = this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [];
         const foundIndex = target.findIndex(
           (focusable) => current.indexOf(focusable) > currentIndex,
