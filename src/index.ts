@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.7
+ * @version 1.2.8
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -51,7 +51,7 @@ export function createRovingTabIndex(
     typeof direction !== 'undefined' &&
     !['horizontal', 'vertical'].includes(direction)
   ) {
-    console.warn('Invalid direction. Fallback: both (undefined).');
+    console.warn('Invalid direction option. Fallback: both (undefined).');
     direction = undefined;
   }
 
@@ -63,12 +63,12 @@ export function createRovingTabIndex(
   }
 
   if (typeof typeahead !== 'boolean') {
-    console.warn('Invalid typeahead. Fallback: false.');
+    console.warn('Invalid typeahead option. Fallback: false.');
     typeahead = false;
   }
 
   if (typeof wrap !== 'boolean') {
-    console.warn('Invalid wrap. Fallback: false.');
+    console.warn('Invalid wrap option. Fallback: false.');
     wrap = false;
   }
 
