@@ -1,6 +1,6 @@
 # Roving Tabindex
 
-Lightweight roving tabindex utility with fully focus management. Designed for accessible menus, tabs, toolbars, and composite widgets.
+Lightweight roving `tabindex` utility with fully focus management. Designed for accessible menus, tabs, toolbars, and composite widgets.
 
 > [!NOTE]
 > Focus traversal works across shadow DOM boundaries using composed-tree-aware focus detection powered by [Power Focusable](https://github.com/y14e/power-focusable).
@@ -42,11 +42,16 @@ const cleanup = createRovingTabIndex(container, options);
 ```ts
 interface RovingTabIndexOptions {
   direction?: 'horizontal' | 'vertical' | undefined; // default: both (undefined)
+  navigationOnly?: boolean;                          // default: false
   selector?: string | undefined;
   typeahead?: boolean;                               // default: false
   wrap?: boolean;                                    // default: false
 }
 ```
+
+### `navigationOnly`
+
+If `true`, enables keyboard navigation without modifying `tabindex`. Useful for widgets like accordions where all items should remain tabbable while still supporting arrow key navigation.
 
 ### `typeahead`
 
