@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.2.11
+ * @version 1.3.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -27,6 +27,7 @@ import { getFocusables } from 'power-focusable';
 
 interface RovingTabIndexOptions {
   readonly direction?: 'horizontal' | 'vertical' | undefined;
+  readonly navigationOnly?: boolean;
   readonly selector?: string | undefined;
   readonly typeahead?: boolean;
   readonly wrap?: boolean;
@@ -45,7 +46,13 @@ export function createRovingTabIndex(
     return () => {};
   }
 
-  let { direction, selector, typeahead = false, wrap = false } = options;
+  let {
+    direction,
+    navigationOnly = false,
+    selector,
+    typeahead = false,
+    wrap = false,
+  } = options;
 
   if (
     typeof direction !== 'undefined' &&
@@ -53,6 +60,11 @@ export function createRovingTabIndex(
   ) {
     console.warn('Invalid direction option. Fallback: both (undefined).');
     direction = undefined;
+  }
+
+  if (typeof navigationOnly !== 'boolean') {
+    console.warn('Invalid navigationOnly option. Fallback: false.');
+    navigationOnly = false;
   }
 
   if (typeof selector !== 'undefined' && typeof selector !== 'string') {
@@ -74,6 +86,7 @@ export function createRovingTabIndex(
 
   const roving = new RovingTabIndex(container, {
     direction,
+    navigationOnly,
     selector,
     typeahead,
     wrap,
@@ -242,6 +255,8 @@ class RovingTabIndex {
       });
     }
 
+    const { navigationOnly } = this.#options;
+
     // Added
     for (const focusable of current) {
       if (this.#focusables.has(focusable)) {
@@ -249,8 +264,11 @@ class RovingTabIndex {
       }
 
       this.#focusables.add(focusable);
-      saveAttributes([focusable], ['tabindex']);
-      focusable.setAttribute('tabindex', '-1');
+
+      if (!navigationOnly) {
+        saveAttributes([focusable], ['tabindex']);
+        focusable.setAttribute('tabindex', '-1');
+      }
 
       if (!this.#options.typeahead) {
         continue;
@@ -281,6 +299,10 @@ class RovingTabIndex {
         focusables.push(focusable);
         this.#focusablesByFirstChar.set(key, focusables);
       });
+    }
+
+    if (navigationOnly) {
+      return;
     }
 
     if (active && this.#focusables.has(active)) {
