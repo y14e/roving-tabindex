@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 1.3.2
+ * @version 2.0.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -29,7 +29,6 @@ interface RovingTabIndexOptions {
   readonly direction?: 'horizontal' | 'vertical' | undefined;
   readonly navigationOnly?: boolean;
   readonly selector?: string | undefined;
-  readonly skipVisibilityCheck?: boolean;
   readonly typeahead?: boolean;
   readonly wrap?: boolean;
 }
@@ -51,7 +50,6 @@ export function createRovingTabIndex(
     direction,
     navigationOnly = false,
     selector,
-    skipVisibilityCheck = false,
     typeahead = false,
     wrap = false,
   } = options;
@@ -76,11 +74,6 @@ export function createRovingTabIndex(
     selector = undefined;
   }
 
-  if (typeof skipVisibilityCheck !== 'boolean') {
-    console.warn('Invalid skipVisibilityCheck option. Fallback: false.');
-    skipVisibilityCheck = false;
-  }
-
   if (typeof typeahead !== 'boolean') {
     console.warn('Invalid typeahead option. Fallback: false.');
     typeahead = false;
@@ -95,7 +88,6 @@ export function createRovingTabIndex(
     direction,
     navigationOnly,
     selector,
-    skipVisibilityCheck,
     typeahead,
     wrap,
   });
@@ -246,7 +238,7 @@ class RovingTabIndex {
       ...getFocusables(this.#container, {
         composed: true,
         filter: this.#selectorFilter,
-        skipVisibilityCheck: !!this.#options.skipVisibilityCheck,
+        skipNegativeTabIndexCheck: !this.#options.navigationOnly,
       }),
     ]);
 
@@ -338,8 +330,7 @@ class RovingTabIndex {
     return getFocusables(this.#container, {
       composed: true,
       filter: this.#selectorFilter,
-      include: (element) => this.#focusables.has(element),
-      skipVisibilityCheck: !!this.#options.skipVisibilityCheck,
+      skipNegativeTabIndexCheck: !this.#options.navigationOnly,
     });
   }
 }
