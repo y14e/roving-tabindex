@@ -44,7 +44,6 @@ interface RovingTabIndexOptions {
   direction?: 'horizontal' | 'vertical' | undefined; // default: both (undefined)
   navigationOnly?: boolean;                          // default: false
   selector?: string | undefined;
-  skipVisibilityCheck?: boolean;                     // default: false
   typeahead?: boolean;                               // default: false
   wrap?: boolean;                                    // default: false
 }
@@ -53,10 +52,6 @@ interface RovingTabIndexOptions {
 ### `navigationOnly`
 
 If `true`, enables keyboard navigation without modifying `tabindex`. Useful for widgets like accordions where all items should remain tabbable while still supporting arrow key navigation.
-
-### `skipVisibilityCheck`
-
-If `true`, skips `checkVisibility()` when determining focusability. Useful for initializing.
 
 ### `typeahead`
 
