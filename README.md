@@ -41,11 +41,11 @@ const cleanup = createRovingTabIndex(container, options);
 
 ```ts
 interface RovingTabIndexOptions {
-  direction?: 'horizontal' | 'vertical' | undefined; // default: both (undefined)
-  navigationOnly?: boolean;                          // default: false
-  selector?: string | undefined;
-  typeahead?: boolean;                               // default: false
-  wrap?: boolean;                                    // default: false
+  direction?: 'horizontal' | 'vertical'; // default: both (undefined)
+  navigationOnly?: boolean;              // default: false
+  selector?: string;
+  typeahead?: boolean;                   // default: false
+  wrap?: boolean;                        // default: false
 }
 ```
 
