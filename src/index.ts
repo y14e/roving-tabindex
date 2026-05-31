@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 2.0.2
+ * @version 2.0.3
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -147,9 +147,9 @@ class RovingTabIndex {
       return;
     }
 
-    const { key, altKey, ctrlKey, metaKey } = event;
+    const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
-    if (altKey || ctrlKey || metaKey) {
+    if (altKey || ctrlKey || metaKey || shiftKey) {
       return;
     }
 
