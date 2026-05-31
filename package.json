@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/y14e/roving-tabindex#readme",
   "devDependencies": {
-    "@y14e/attributes-utils": "^1.0.5",
+    "@y14e/attributes-utils": "^1.1.0",
     "bun-types": "latest",
     "power-focusable": "^4.3.1",
     "tsup": "^8.0.0",
