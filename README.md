@@ -2,9 +2,6 @@
 
 Lightweight roving `tabindex` utility with fully focus management. Designed for accessible menus, tabs, toolbars, and composite widgets.
 
-> [!NOTE]
-> Focus traversal works across shadow DOM boundaries using composed-tree-aware focus detection powered by [Power Focusable](https://github.com/y14e/power-focusable).
-
 ## Install
 
 ```bash
