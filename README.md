@@ -10,14 +10,14 @@ npm i @y14e/roving-tabindex
 
 ```ts
 // npm
-import { createRovingTabIndex } from '@y14e/roving-tabindex@2.0.8';
+import { createRovingTabIndex } from '@y14e/roving-tabindex@2.1.0';
 
 // CDNs
-import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@2.0.8';
+import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@2.1.0';
 // or
-import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@2.0.8/+esm';
+import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@2.1.0/+esm';
 // or
-import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@2.0.8';
+import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@2.1.0';
 ```
 
 ## 📦 APIs
@@ -40,6 +40,7 @@ const cleanup = createRovingTabIndex(container, options);
 interface RovingTabIndexOptions {
   direction?: 'horizontal' | 'vertical'; // default: both (undefined)
   navigationOnly?: boolean;              // default: false
+  noMemory?: boolean;                    // default: false
   selector?: string;
   typeahead?: boolean;                   // default: false
   wrap?: boolean;                        // default: false
@@ -49,6 +50,10 @@ interface RovingTabIndexOptions {
 ### `navigationOnly`
 
 If `true`, enables keyboard navigation without modifying `tabindex`. Useful for widgets like accordions where all items should remain tabbable while still supporting arrow key navigation.
+
+### `noMemory`
+
+If `true`, disables focus memory. Focus always starts from the first item.
 
 ### `typeahead`
 

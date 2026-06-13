@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 2.0.8
+ * @version 2.1.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -28,6 +28,7 @@ import { getFocusables } from 'power-focusable';
 interface RovingTabIndexOptions {
   readonly direction?: 'horizontal' | 'vertical';
   readonly navigationOnly?: boolean;
+  readonly noMemory?: boolean;
   readonly selector?: string;
   readonly typeahead?: boolean;
   readonly wrap?: boolean;
@@ -49,6 +50,7 @@ export function createRovingTabIndex(
   let {
     direction,
     navigationOnly = false,
+    noMemory = false,
     selector,
     typeahead = false,
     wrap = false,
@@ -65,6 +67,11 @@ export function createRovingTabIndex(
   if (typeof navigationOnly !== 'boolean') {
     console.warn('Invalid navigationOnly option. Fallback: false.');
     navigationOnly = false;
+  }
+
+  if (typeof noMemory !== 'boolean') {
+    console.warn('Invalid noMemory option. Fallback: false.');
+    noMemory = false;
   }
 
   if (
@@ -87,7 +94,7 @@ export function createRovingTabIndex(
     wrap = false;
   }
 
-  const settings = { navigationOnly, typeahead, wrap };
+  const settings = { navigationOnly, noMemory, typeahead, wrap };
   direction && Object.assign(settings, { direction });
   selector && Object.assign(settings, { selector });
   const roving = new RovingTabIndex(container, settings);
@@ -136,6 +143,7 @@ class RovingTabIndex {
       capture: true,
       signal,
     });
+
     document.addEventListener('keydown', this.#onKeyDown, {
       capture: true,
       signal,
@@ -146,11 +154,18 @@ class RovingTabIndex {
   #onFocusIn = (event: FocusEvent): void => {
     const { target } = event;
 
-    if (!(target instanceof Element) || !this.#focusables.has(target)) {
+    if (!(target instanceof Element)) {
       return;
     }
 
-    this.#update(target);
+    const isFocusable = this.#focusables.has(target);
+
+    if (this.#options.noMemory && !isFocusable) {
+      this.#update(null);
+      return;
+    }
+
+    isFocusable && this.#update(target);
   };
 
   #onKeyDown = (event: KeyboardEvent): void => {
