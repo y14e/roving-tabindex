@@ -150,7 +150,6 @@ class RovingTabIndex {
       capture: true,
       signal,
     });
-
     document.addEventListener('keydown', this.#onKeyDown, {
       capture: true,
       signal,
