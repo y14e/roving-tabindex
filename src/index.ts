@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 2.1.0
+ * @version 2.2.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -29,6 +29,7 @@ interface RovingTabIndexOptions {
   readonly direction?: 'horizontal' | 'vertical';
   readonly navigationOnly?: boolean;
   readonly noMemory?: boolean;
+  readonly noStart?: boolean;
   readonly selector?: string;
   readonly typeahead?: boolean;
   readonly wrap?: boolean;
@@ -51,6 +52,7 @@ export function createRovingTabIndex(
     direction,
     navigationOnly = false,
     noMemory = false,
+    noStart = false,
     selector,
     typeahead = false,
     wrap = false,
@@ -74,6 +76,11 @@ export function createRovingTabIndex(
     noMemory = false;
   }
 
+  if (typeof noStart !== 'boolean') {
+    console.warn('Invalid noStart option. Fallback: false.');
+    noStart = false;
+  }
+
   if (
     typeof selector !== 'undefined' &&
     (typeof selector !== 'string' || !selector.trim())
@@ -94,7 +101,7 @@ export function createRovingTabIndex(
     wrap = false;
   }
 
-  const settings = { navigationOnly, noMemory, typeahead, wrap };
+  const settings = { navigationOnly, noMemory, noStart, typeahead, wrap };
   direction && Object.assign(settings, { direction });
   selector && Object.assign(settings, { selector });
   const roving = new RovingTabIndex(container, settings);
@@ -273,7 +280,7 @@ class RovingTabIndex {
       });
     }
 
-    const { navigationOnly } = this.#options;
+    const { navigationOnly, noStart, typeahead } = this.#options;
 
     // Added
     for (const focusable of current) {
@@ -288,7 +295,7 @@ class RovingTabIndex {
         focusable.setAttribute('tabindex', '-1');
       }
 
-      if (!this.#options.typeahead) {
+      if (!typeahead) {
         continue;
       }
 
@@ -332,7 +339,7 @@ class RovingTabIndex {
     }
 
     [...this.#focusables].forEach((focusable, i) => {
-      focusable.setAttribute('tabindex', i ? '-1' : '0');
+      focusable.setAttribute('tabindex', i || noStart ? '-1' : '0');
     });
   }
 
