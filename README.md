@@ -42,6 +42,7 @@ interface RovingTabIndexOptions {
   navigationOnly?: boolean;              // default: false
   noMemory?: boolean;                    // default: false
   noStart?: boolean;                     // default: false
+  noStopPropagation?: boolean;           // default: false
   selector?: string;
   typeahead?: boolean;                   // default: false
   wrap?: boolean;                        // default: false
@@ -59,6 +60,10 @@ If `true`, disables focus memory. Focus always starts from the first item.
 ### `noStart`
 
 If `true`, does not assign `tabindex="0"` to the first item during initialization.
+
+### `noStopPropagation`
+
+If `true`, keyboard navigation will not call `stopPropagation()`.
 
 ### `typeahead`
 
