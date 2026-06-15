@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 2.2.1
+ * @version 3.0.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -30,7 +30,6 @@ interface RovingTabIndexOptions {
   readonly navigationOnly?: boolean;
   readonly noMemory?: boolean;
   readonly noStart?: boolean;
-  readonly noStopPropagation?: boolean;
   readonly selector?: string;
   readonly typeahead?: boolean;
   readonly wrap?: boolean;
@@ -54,7 +53,6 @@ export function createRovingTabIndex(
     navigationOnly = false,
     noMemory = false,
     noStart = false,
-    noStopPropagation = false,
     selector,
     typeahead = false,
     wrap = false,
@@ -83,11 +81,6 @@ export function createRovingTabIndex(
     noStart = false;
   }
 
-  if (typeof noStopPropagation !== 'boolean') {
-    console.warn('Invalid noStopPropagation option. Fallback: false.');
-    noStopPropagation = false;
-  }
-
   if (
     typeof selector !== 'undefined' &&
     (typeof selector !== 'string' || !selector.trim())
@@ -112,7 +105,6 @@ export function createRovingTabIndex(
     navigationOnly,
     noMemory,
     noStart,
-    noStopPropagation,
     typeahead,
     wrap,
   };
@@ -199,7 +191,7 @@ class RovingTabIndex {
       return;
     }
 
-    const { direction, noStopPropagation, typeahead, wrap } = this.#options;
+    const { direction, typeahead, wrap } = this.#options;
     const isBoth = !direction;
     const isHorizontal = direction === 'horizontal';
 
@@ -237,7 +229,6 @@ class RovingTabIndex {
     }
 
     event.preventDefault();
-    !noStopPropagation && event.stopPropagation();
     const currentIndex = current.indexOf(active);
     let rawIndex: number;
     let newIndex = currentIndex;

@@ -10,14 +10,14 @@ npm i @y14e/roving-tabindex
 
 ```ts
 // npm
-import { createRovingTabIndex } from '@y14e/roving-tabindex@2.2.0';
+import { createRovingTabIndex } from '@y14e/roving-tabindex@3.0.0';
 
 // CDNs
-import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@2.2.0';
+import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.0.0';
 // or
-import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@2.2.0/+esm';
+import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.0.0/+esm';
 // or
-import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@2.2.0';
+import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.0.0';
 ```
 
 ## 📦 APIs
@@ -42,7 +42,6 @@ interface RovingTabIndexOptions {
   navigationOnly?: boolean;              // default: false
   noMemory?: boolean;                    // default: false
   noStart?: boolean;                     // default: false
-  noStopPropagation?: boolean;           // default: false
   selector?: string;
   typeahead?: boolean;                   // default: false
   wrap?: boolean;                        // default: false
@@ -60,10 +59,6 @@ If `true`, disables focus memory. Focus always starts from the first item.
 ### `noStart`
 
 If `true`, does not assign `tabindex="0"` to the first item during initialization.
-
-### `noStopPropagation`
-
-If `true`, keyboard navigation will not call `stopPropagation()`.
 
 ### `typeahead`
 
