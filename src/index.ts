@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.0
+ * @version 3.0.1
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -230,8 +230,7 @@ class RovingTabIndex {
 
     event.preventDefault();
     const currentIndex = current.indexOf(active);
-    let rawIndex: number;
-    let newIndex = currentIndex;
+    let newIndex: number;
     let target = current;
 
     switch (key) {
@@ -242,17 +241,19 @@ class RovingTabIndex {
         newIndex = 0;
         break;
       case 'ArrowLeft':
-      case 'ArrowUp':
-        rawIndex = currentIndex - 1;
+      case 'ArrowUp': {
+        const rawIndex = currentIndex - 1;
         newIndex = wrap ? rawIndex : Math.max(rawIndex, 0);
         break;
+      }
       case 'ArrowRight':
-      case 'ArrowDown':
-        rawIndex = currentIndex + 1;
+      case 'ArrowDown': {
+        const rawIndex = currentIndex + 1;
         newIndex = wrap
           ? rawIndex % current.length
           : Math.min(rawIndex, current.length - 1);
         break;
+      }
       default: {
         // Typeahead
         target = this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [];

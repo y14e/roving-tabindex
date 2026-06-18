@@ -10,14 +10,14 @@ npm i @y14e/roving-tabindex
 
 ```ts
 // npm
-import { createRovingTabIndex } from '@y14e/roving-tabindex@3.0.0';
+import { createRovingTabIndex } from '@y14e/roving-tabindex@3.0.1';
 
 // CDNs
-import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.0.0';
+import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.0.1';
 // or
-import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.0.0/+esm';
+import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.0.1/+esm';
 // or
-import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.0.0';
+import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.0.1';
 ```
 
 ## 📦 APIs
