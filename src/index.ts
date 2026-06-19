@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.1
+ * @version 3.0.2
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -171,13 +171,9 @@ class RovingTabIndex {
     }
 
     const isFocusable = this.#focusables.has(target);
-
-    if (this.#options.noMemory && !isFocusable) {
-      this.#update(null);
-      return;
-    }
-
-    isFocusable && this.#update(target);
+    this.#options.noMemory && !isFocusable
+      ? this.#update(null)
+      : isFocusable && this.#update(target);
   };
 
   #onKeyDown = (event: KeyboardEvent): void => {
@@ -273,16 +269,14 @@ class RovingTabIndex {
 
     // Removed
     for (const focusable of this.#focusables) {
-      if (current.has(focusable)) {
-        continue;
+      if (!current.has(focusable)) {
+        focusable.isConnected && restoreAttributes([focusable]);
+        this.#focusables.delete(focusable);
+        this.#focusablesByFirstChar.forEach((focusables) => {
+          const index = focusables.indexOf(focusable);
+          index >= 0 && focusables.splice(index, 1);
+        });
       }
-
-      focusable.isConnected && restoreAttributes([focusable]);
-      this.#focusables.delete(focusable);
-      this.#focusablesByFirstChar.forEach((focusables) => {
-        const index = focusables.indexOf(focusable);
-        index >= 0 && focusables.splice(index, 1);
-      });
     }
 
     const { navigationOnly, noStart, typeahead } = this.#options;
@@ -331,21 +325,17 @@ class RovingTabIndex {
       });
     }
 
-    if (navigationOnly) {
-      return;
+    if (!navigationOnly) {
+      if (active && this.#focusables.has(active)) {
+        this.#focusables.forEach((focusable) => {
+          focusable.setAttribute('tabindex', focusable === active ? '0' : '-1');
+        });
+      } else {
+        [...this.#focusables].forEach((focusable, i) => {
+          focusable.setAttribute('tabindex', i || noStart ? '-1' : '0');
+        });
+      }
     }
-
-    if (active && this.#focusables.has(active)) {
-      this.#focusables.forEach((focusable) => {
-        focusable.setAttribute('tabindex', focusable === active ? '0' : '-1');
-      });
-
-      return;
-    }
-
-    [...this.#focusables].forEach((focusable, i) => {
-      focusable.setAttribute('tabindex', i || noStart ? '-1' : '0');
-    });
   }
 
   #createSelectorFilter(): (element: Element) => boolean {
