@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.2
+ * @version 3.0.3
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -299,6 +299,7 @@ class RovingTabIndex {
       }
 
       // Typeahead
+      const char = focusable.textContent?.trim()?.at(0)?.toUpperCase();
       const value = focusable.ariaKeyShortcuts?.trim();
       const keys = new Set(
         value
@@ -308,7 +309,6 @@ class RovingTabIndex {
               .map((key) => key.toUpperCase())
           : [],
       );
-      const char = focusable.textContent?.trim()?.at(0)?.toUpperCase();
 
       if (char) {
         keys.add(char);
