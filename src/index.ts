@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.6
+ * @version 3.0.7
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -371,3 +371,14 @@ function getActiveElement(): Element | null {
 
   return current;
 }
+
+// -----------------------------------------------------------------------------
+// Exports
+// -----------------------------------------------------------------------------
+
+export {
+  addTokenToAttribute,
+  getFocusables,
+  restoreAttributes,
+  saveAttributes,
+};
