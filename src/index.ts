@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.8
+ * @version 3.0.9
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -55,6 +55,8 @@ export function createRovingTabIndex(
 // -----------------------------------------------------------------------------
 // Core
 // -----------------------------------------------------------------------------
+
+const initialized = new Set<Element>();
 
 class RovingTabIndex {
   #container: Element;
@@ -149,13 +151,18 @@ class RovingTabIndex {
 
   #initialize(): void {
     this.#update(document.activeElement);
+
+    if (!(this.#container instanceof HTMLElement)) {
+      return;
+    }
+
     this.#controller = new AbortController();
     const { signal } = this.#controller;
-    document.addEventListener('focusin', this.#onFocusIn, {
+    this.#container.addEventListener('focusin', this.#onFocusIn, {
       capture: true,
       signal,
     });
-    document.addEventListener('keydown', this.#onKeyDown, {
+    this.#container.addEventListener('keydown', this.#onKeyDown, {
       capture: true,
       signal,
     });
@@ -176,10 +183,6 @@ class RovingTabIndex {
   };
 
   #onKeyDown = (event: KeyboardEvent): void => {
-    if (!event.composedPath().includes(this.#container)) {
-      return;
-    }
-
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
     if (altKey || ctrlKey || metaKey || shiftKey) {
@@ -282,11 +285,16 @@ class RovingTabIndex {
 
     // Added
     for (const focusable of current) {
+      if (initialized.has(focusable)) {
+        throw new TypeError('Already initialized');
+      }
+
       if (this.#focusables.has(focusable)) {
         continue;
       }
 
       this.#focusables.add(focusable);
+      initialized.add(focusable);
 
       if (!navigationOnly) {
         saveAttributes([focusable], ['tabindex']);
