@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.7
+ * @version 3.0.8
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -19,7 +19,7 @@ import {
   restoreAttributes,
   saveAttributes,
 } from '@y14e/attributes-utils';
-import { getFocusables } from 'power-focusable';
+import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
 
 // -----------------------------------------------------------------------------
 // Types
@@ -355,29 +355,13 @@ class RovingTabIndex {
 }
 
 // -----------------------------------------------------------------------------
-// Utils
-// -----------------------------------------------------------------------------
-
-function focusElement(element: Element): void {
-  'focus' in element && typeof element.focus === 'function' && element.focus();
-}
-
-function getActiveElement(): Element | null {
-  let current = document.activeElement;
-
-  while (current?.shadowRoot?.activeElement) {
-    current = current.shadowRoot.activeElement;
-  }
-
-  return current;
-}
-
-// -----------------------------------------------------------------------------
 // Exports
 // -----------------------------------------------------------------------------
 
 export {
   addTokenToAttribute,
+  focusElement,
+  getActiveElement,
   getFocusables,
   restoreAttributes,
   saveAttributes,
