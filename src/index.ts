@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.9
+ * @version 3.0.10
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -56,9 +56,9 @@ export function createRovingTabIndex(
 // Core
 // -----------------------------------------------------------------------------
 
-const initialized = new Set<Element>();
-
 class RovingTabIndex {
+  static #initialized: Set<Element> = new Set();
+
   #container: Element;
   #settings: RovingTabIndexOptions;
   #focusables = new Set<Element>();
@@ -146,7 +146,6 @@ class RovingTabIndex {
     restoreAttributes([...this.#focusables]);
     this.#focusables.clear();
     this.#focusablesByFirstChar.clear();
-    this.#container.removeAttribute('data-roving-tabindex-initialized');
   }
 
   #initialize(): void {
@@ -166,7 +165,6 @@ class RovingTabIndex {
       capture: true,
       signal,
     });
-    this.#container.setAttribute('data-roving-tabindex-initialized', '');
   }
 
   #onFocusIn = (event: FocusEvent): void => {
@@ -285,16 +283,16 @@ class RovingTabIndex {
 
     // Added
     for (const focusable of current) {
-      if (initialized.has(focusable)) {
-        throw new TypeError('Already initialized');
-      }
-
       if (this.#focusables.has(focusable)) {
         continue;
       }
 
+      if (RovingTabIndex.#initialized.has(focusable)) {
+        throw new TypeError('Already initialized');
+      }
+
       this.#focusables.add(focusable);
-      initialized.add(focusable);
+      RovingTabIndex.#initialized.add(focusable);
 
       if (!navigationOnly) {
         saveAttributes([focusable], ['tabindex']);
