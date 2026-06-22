@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.5
+ * @version 3.0.6
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -48,69 +48,7 @@ export function createRovingTabIndex(
     return () => {};
   }
 
-  let {
-    direction,
-    navigationOnly = false,
-    noMemory = false,
-    noStart = false,
-    selector,
-    typeahead = false,
-    wrap = false,
-  } = options;
-
-  if (
-    typeof direction !== 'undefined' &&
-    !['horizontal', 'vertical'].includes(direction)
-  ) {
-    console.warn('Invalid direction option. Fallback: both (undefined).');
-    direction = undefined;
-  }
-
-  if (typeof navigationOnly !== 'boolean') {
-    console.warn('Invalid navigationOnly option. Fallback: false.');
-    navigationOnly = false;
-  }
-
-  if (typeof noMemory !== 'boolean') {
-    console.warn('Invalid noMemory option. Fallback: false.');
-    noMemory = false;
-  }
-
-  if (typeof noStart !== 'boolean') {
-    console.warn('Invalid noStart option. Fallback: false.');
-    noStart = false;
-  }
-
-  if (
-    typeof selector !== 'undefined' &&
-    (typeof selector !== 'string' || !selector.trim())
-  ) {
-    console.warn(
-      'Invalid selector. Fallback: all focusable elements (undefined).',
-    );
-    selector = undefined;
-  }
-
-  if (typeof typeahead !== 'boolean') {
-    console.warn('Invalid typeahead option. Fallback: false.');
-    typeahead = false;
-  }
-
-  if (typeof wrap !== 'boolean') {
-    console.warn('Invalid wrap option. Fallback: false.');
-    wrap = false;
-  }
-
-  const settings = {
-    navigationOnly,
-    noMemory,
-    noStart,
-    typeahead,
-    wrap,
-  };
-  direction && Object.assign(settings, { direction });
-  selector && Object.assign(settings, { selector });
-  const roving = new RovingTabIndex(container, settings);
+  const roving = new RovingTabIndex(container, options);
   return () => roving.destroy();
 }
 
@@ -120,7 +58,7 @@ export function createRovingTabIndex(
 
 class RovingTabIndex {
   #container: Element;
-  #options: RovingTabIndexOptions;
+  #settings: RovingTabIndexOptions;
   #focusables = new Set<Element>();
   #focusablesByFirstChar = new Map<string, Element[]>();
   #selectorFilter: (_: Element) => boolean;
@@ -129,7 +67,68 @@ class RovingTabIndex {
 
   constructor(container: Element, options: RovingTabIndexOptions = {}) {
     this.#container = container;
-    this.#options = options;
+    let {
+      direction,
+      navigationOnly = false,
+      noMemory = false,
+      noStart = false,
+      selector,
+      typeahead = false,
+      wrap = false,
+    } = options;
+
+    if (
+      typeof direction !== 'undefined' &&
+      !['horizontal', 'vertical'].includes(direction)
+    ) {
+      console.warn('Invalid direction option. Fallback: both (undefined).');
+      direction = undefined;
+    }
+
+    if (typeof navigationOnly !== 'boolean') {
+      console.warn('Invalid navigationOnly option. Fallback: false.');
+      navigationOnly = false;
+    }
+
+    if (typeof noMemory !== 'boolean') {
+      console.warn('Invalid noMemory option. Fallback: false.');
+      noMemory = false;
+    }
+
+    if (typeof noStart !== 'boolean') {
+      console.warn('Invalid noStart option. Fallback: false.');
+      noStart = false;
+    }
+
+    if (
+      typeof selector !== 'undefined' &&
+      (typeof selector !== 'string' || !selector.trim())
+    ) {
+      console.warn(
+        'Invalid selector. Fallback: all focusable elements (undefined).',
+      );
+      selector = undefined;
+    }
+
+    if (typeof typeahead !== 'boolean') {
+      console.warn('Invalid typeahead option. Fallback: false.');
+      typeahead = false;
+    }
+
+    if (typeof wrap !== 'boolean') {
+      console.warn('Invalid wrap option. Fallback: false.');
+      wrap = false;
+    }
+
+    this.#settings = {
+      navigationOnly,
+      noMemory,
+      noStart,
+      typeahead,
+      wrap,
+    };
+    direction && Object.assign(this.#settings, { direction });
+    selector && Object.assign(this.#settings, { selector });
     this.#selectorFilter = this.#createSelectorFilter();
     this.#initialize();
   }
@@ -171,7 +170,7 @@ class RovingTabIndex {
     }
 
     const isFocusable = this.#focusables.has(target);
-    this.#options.noMemory && !isFocusable
+    this.#settings.noMemory && !isFocusable
       ? this.#update(null)
       : isFocusable && this.#update(target);
   };
@@ -187,7 +186,7 @@ class RovingTabIndex {
       return;
     }
 
-    const { direction, typeahead, wrap } = this.#options;
+    const { direction, typeahead, wrap } = this.#settings;
     const isBoth = !direction;
     const isHorizontal = direction === 'horizontal';
 
@@ -279,7 +278,7 @@ class RovingTabIndex {
       }
     }
 
-    const { navigationOnly, noStart, typeahead } = this.#options;
+    const { navigationOnly, noStart, typeahead } = this.#settings;
 
     // Added
     for (const focusable of current) {
@@ -339,7 +338,7 @@ class RovingTabIndex {
   }
 
   #createSelectorFilter(): (element: Element) => boolean {
-    const { selector } = this.#options;
+    const { selector } = this.#settings;
     return (element) =>
       !selector ||
       [...this.#container.querySelectorAll(selector)].includes(element);
@@ -349,7 +348,7 @@ class RovingTabIndex {
     return getFocusables(this.#container, {
       composed: true,
       filter: this.#selectorFilter,
-      skipNegativeTabIndexCheck: !this.#options.navigationOnly,
+      skipNegativeTabIndexCheck: !this.#settings.navigationOnly,
       skipVisibilityCheck: true,
     });
   }
