@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.14
+ * @version 3.0.15
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -166,6 +166,10 @@ class RovingTabIndex {
       capture: true,
       signal,
     });
+    document.addEventListener("focusout", this.#onFocusOut, {
+      capture: true,
+      signal
+    });
     this.#container.addEventListener('keydown', this.#onKeyDown, {
       capture: true,
       signal,
@@ -183,6 +187,12 @@ class RovingTabIndex {
     this.#settings.noMemory && !isFocusable
       ? this.#update(null)
       : isFocusable && this.#update(target);
+  };
+
+  #onFocusOut = (event: FocusEvent): void => {
+    if (!event.relatedTarget) {
+      this.#update(null);
+    }
   };
 
   #onKeyDown = (event: KeyboardEvent): void => {
