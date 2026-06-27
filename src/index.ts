@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.0.18
+ * @version 3.1.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -19,7 +19,13 @@ import {
   restoreAttributes,
   saveAttributes,
 } from '@y14e/attributes-utils';
-import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
+import {
+  focusElement,
+  getActiveElement,
+  getFocusables,
+  getNextFocusable,
+  getPreviousFocusable,
+} from 'power-focusable';
 
 // -----------------------------------------------------------------------------
 // Types
@@ -199,7 +205,7 @@ class RovingTabIndex {
   #onKeyDown = (event: KeyboardEvent): void => {
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
-    if (altKey || ctrlKey || metaKey || shiftKey) {
+    if ((shiftKey && key !== 'Tab') || altKey || ctrlKey || metaKey) {
       return;
     }
 
@@ -209,6 +215,7 @@ class RovingTabIndex {
 
     if (
       ![
+        'Tab',
         'End',
         'Home',
         ...(isBoth
@@ -240,12 +247,15 @@ class RovingTabIndex {
       return;
     }
 
-    event.preventDefault();
+    let shouldPrevent = true;
     const currentIndex = current.indexOf(active);
-    let newIndex: number;
+    let newIndex = 0;
     let target = current;
 
     switch (key) {
+      case 'Tab':
+        shouldPrevent = this.#moveFocus(shiftKey ? 'previous' : 'next');
+        break;
       case 'End':
         newIndex = -1;
         break;
@@ -276,8 +286,12 @@ class RovingTabIndex {
       }
     }
 
-    const focusable = target.at(newIndex);
-    focusable && focusElement(focusable);
+    shouldPrevent && event.preventDefault();
+
+    if (key !== 'Tab') {
+      const focusable = target.at(newIndex);
+      focusable && focusElement(focusable);
+    }
   };
 
   #update(active?: Element | null): void {
@@ -373,5 +387,22 @@ class RovingTabIndex {
       skipNegativeTabIndexCheck: !this.#settings.navigationOnly,
       skipVisibilityCheck: true,
     });
+  }
+
+  #moveFocus(direction: 'previous' | 'next'): boolean {
+    const options = {
+      composed: true,
+    };
+    const focusable =
+      direction === 'previous'
+        ? getPreviousFocusable(document.body, options)
+        : getNextFocusable(document.body, options);
+
+    if (focusable) {
+      focusElement(focusable);
+      return true;
+    }
+
+    return false;
   }
 }
