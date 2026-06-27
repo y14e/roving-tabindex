@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.0
+ * @version 3.1.1
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -19,13 +19,7 @@ import {
   restoreAttributes,
   saveAttributes,
 } from '@y14e/attributes-utils';
-import {
-  focusElement,
-  getActiveElement,
-  getFocusables,
-  getNextFocusable,
-  getPreviousFocusable,
-} from 'power-focusable';
+import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
 
 // -----------------------------------------------------------------------------
 // Types
@@ -205,7 +199,7 @@ class RovingTabIndex {
   #onKeyDown = (event: KeyboardEvent): void => {
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
-    if ((shiftKey && key !== 'Tab') || altKey || ctrlKey || metaKey) {
+    if (altKey || ctrlKey || metaKey || shiftKey) {
       return;
     }
 
@@ -215,7 +209,6 @@ class RovingTabIndex {
 
     if (
       ![
-        'Tab',
         'End',
         'Home',
         ...(isBoth
@@ -247,15 +240,12 @@ class RovingTabIndex {
       return;
     }
 
-    let shouldPrevent = true;
+    event.preventDefault();
     const currentIndex = current.indexOf(active);
-    let newIndex = 0;
+    let newIndex: number;
     let target = current;
 
     switch (key) {
-      case 'Tab':
-        shouldPrevent = this.#moveFocus(shiftKey ? 'previous' : 'next');
-        break;
       case 'End':
         newIndex = -1;
         break;
@@ -286,12 +276,8 @@ class RovingTabIndex {
       }
     }
 
-    shouldPrevent && event.preventDefault();
-
-    if (key !== 'Tab') {
-      const focusable = target.at(newIndex);
-      focusable && focusElement(focusable);
-    }
+    const focusable = target.at(newIndex);
+    focusable && focusElement(focusable);
   };
 
   #update(active?: Element | null): void {
@@ -387,22 +373,5 @@ class RovingTabIndex {
       skipNegativeTabIndexCheck: !this.#settings.navigationOnly,
       skipVisibilityCheck: true,
     });
-  }
-
-  #moveFocus(direction: 'previous' | 'next'): boolean {
-    const options = {
-      composed: true,
-    };
-    const focusable =
-      direction === 'previous'
-        ? getPreviousFocusable(document.body, options)
-        : getNextFocusable(document.body, options);
-
-    if (focusable) {
-      focusElement(focusable);
-      return true;
-    }
-
-    return false;
   }
 }
