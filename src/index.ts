@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.2
+ * @version 3.1.3
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -127,13 +127,7 @@ class RovingTabIndex {
       wrap = false;
     }
 
-    this.#settings = {
-      navigationOnly,
-      noMemory,
-      noStart,
-      typeahead,
-      wrap,
-    };
+    this.#settings = { navigationOnly, noMemory, noStart, typeahead, wrap };
     direction && Object.assign(this.#settings, { direction });
     selector && Object.assign(this.#settings, { selector });
     this.#selectorFilter = this.#createSelectorFilter();
