@@ -13,11 +13,11 @@ npm i @y14e/roving-tabindex
 import { createRovingTabIndex } from '@y14e/roving-tabindex';
 
 // CDNs
-import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.1.5';
+import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.1.6';
 // or
-import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.1.5/+esm';
+import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.1.6/+esm';
 // or
-import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.1.5';
+import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.1.6';
 ```
 
 ## 📦 APIs

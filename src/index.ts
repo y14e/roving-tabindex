@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.5
+ * @version 3.1.6
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -149,31 +149,40 @@ class RovingTabIndex {
 
   #initialize(): void {
     this.#update(getActiveElement());
-
-    if (!(this.#container instanceof HTMLElement)) {
-      return;
-    }
-
     this.#controller = new AbortController();
     const { signal } = this.#controller;
     this.#container.addEventListener('focusin', this.#onFocusIn, { signal });
     this.#settings.noMemory &&
-      this.#container.addEventListener('focusout', this.#onFocusOut, { signal });
+      this.#container.addEventListener('focusout', this.#onFocusOut, {
+        signal,
+      });
     this.#container.addEventListener('keydown', this.#onKeyDown, { signal });
   }
 
-  #onFocusIn = (event: FocusEvent): void => {
+  #onFocusIn = (event: Event): void => {
+    if (!(event instanceof FocusEvent)) {
+      return;
+    }
+
     const { target } = event;
     target instanceof Element && this.#update(target);
   };
 
-  #onFocusOut = (event: FocusEvent): void => {
+  #onFocusOut = (event: Event): void => {
+    if (!(event instanceof FocusEvent)) {
+      return;
+    }
+
     const target = event.relatedTarget;
     (!(target instanceof Element) || !this.#focusables.has(target)) &&
       this.#update();
   };
 
-  #onKeyDown = (event: KeyboardEvent): void => {
+  #onKeyDown = (event: Event): void => {
+    if (!(event instanceof KeyboardEvent)) {
+      return;
+    }
+
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
     if (altKey || ctrlKey || metaKey || shiftKey) {
