@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.6
+ * @version 3.1.7
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -62,7 +62,7 @@ export function createRovingTabIndex(
 // -----------------------------------------------------------------------------
 
 class RovingTabIndex {
-  static #initialized: Set<Element> = new Set();
+  static #initialized = new Set<Element>();
 
   #container: Element;
   #settings: RovingTabIndexOptions;
