@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.8
+ * @version 3.1.9
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -25,7 +25,7 @@ import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
 // Types
 // -----------------------------------------------------------------------------
 
-interface RovingTabIndexOptions {
+export interface RovingTabIndexOptions {
   direction: 'horizontal' | 'vertical';
   navigationOnly: boolean;
   noMemory: boolean;
