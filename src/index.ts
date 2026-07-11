@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.7
+ * @version 3.1.8
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -26,13 +26,13 @@ import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
 // -----------------------------------------------------------------------------
 
 interface RovingTabIndexOptions {
-  readonly direction?: 'horizontal' | 'vertical';
-  readonly navigationOnly?: boolean;
-  readonly noMemory?: boolean;
-  readonly noStart?: boolean;
-  readonly selector?: string;
-  readonly typeahead?: boolean;
-  readonly wrap?: boolean;
+  direction: 'horizontal' | 'vertical';
+  navigationOnly: boolean;
+  noMemory: boolean;
+  noStart: boolean;
+  selector: string;
+  typeahead: boolean;
+  wrap: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ interface RovingTabIndexOptions {
 
 export function createRovingTabIndex(
   container: Element,
-  options: RovingTabIndexOptions = {},
+  options: Partial<RovingTabIndexOptions> = {},
 ): () => void {
   if (!(container instanceof Element)) {
     console.warn('Invalid container element');
@@ -65,14 +65,17 @@ class RovingTabIndex {
   static #initialized = new Set<Element>();
 
   #container: Element;
-  #settings: RovingTabIndexOptions;
+  #settings: Partial<RovingTabIndexOptions>;
   #focusables = new Set<Element>();
   #focusablesByFirstChar = new Map<string, Element[]>();
   #selectorFilter: (_: Element) => boolean;
   #controller: AbortController | null = null;
   #isDestroyed = false;
 
-  constructor(container: Element, options: RovingTabIndexOptions = {}) {
+  constructor(
+    container: Element,
+    options: Partial<RovingTabIndexOptions> = {},
+  ) {
     this.#container = container;
     let {
       direction,
