@@ -110,7 +110,7 @@ class RovingTabIndex {
     }
 
     if (selector && (typeof selector !== 'string' || !selector.trim())) {
-      console.warn('Invalid selector. Fallback: no selector.');
+      console.warn('Invalid selector. Fallback: no selector string.');
       selector = '';
     }
 
