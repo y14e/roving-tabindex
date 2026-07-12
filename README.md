@@ -13,11 +13,11 @@ npm i @y14e/roving-tabindex
 import { createRovingTabIndex } from '@y14e/roving-tabindex';
 
 // CDNs
-import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.1.9';
+import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.1.10';
 // or
-import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.1.9/+esm';
+import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.1.10/+esm';
 // or
-import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.1.9';
+import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.1.10';
 ```
 
 ## 📦 APIs
@@ -38,14 +38,16 @@ const cleanup = createRovingTabIndex(container, options);
 
 ```ts
 interface RovingTabIndexOptions {
-  direction: 'horizontal' | 'vertical'; // default: both (undefined)
-  navigationOnly: boolean;              // default: false
-  noMemory: boolean;                    // default: false
-  noStart: boolean;                     // default: false
-  selector: string;
-  typeahead: boolean;                   // default: false
-  wrap: boolean;                        // default: false
+  direction: RovingTabIndexDirection; // default: 'both'
+  navigationOnly: boolean;            // default: false
+  noMemory: boolean;                  // default: false
+  noStart: boolean;                   // default: false
+  selector: string;                   // default: ''
+  typeahead: boolean;                 // default: false
+  wrap: boolean;                      // default: false
 }
+
+type RovingTabIndexDirection = 'both' | 'horizontal' | 'vertical';
 ```
 
 ### `navigationOnly`
