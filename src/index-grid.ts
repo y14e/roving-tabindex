@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.13
+ * @version 3.1.11
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -35,7 +35,7 @@ export interface RovingTabIndexOptions {
   wrap: boolean;
 }
 
-type RovingTabIndexDirection = 'both' | 'horizontal' | 'vertical';
+type RovingTabIndexDirection = 'both' | 'grid' | 'horizontal' | 'vertical';
 
 // -----------------------------------------------------------------------------
 // APIs
@@ -50,8 +50,13 @@ export function createRovingTabIndex(
     return () => {};
   }
 
-  const roving = new RovingTabIndex(container, options);
-  return () => roving.destroy();
+  try {
+    const roving = new RovingTabIndex(container, options);
+    return () => roving.destroy();
+  } catch (error) {
+    error instanceof Error && console.warn(error.message || error);
+    return () => {};
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -62,7 +67,7 @@ class RovingTabIndex {
   static #initialized = new Set<Element>();
 
   #container: Element;
-  #settings: RovingTabIndexOptions;
+  #settings: Partial<RovingTabIndexOptions>;
   #focusables = new Set<Element>();
   #focusablesByFirstChar = new Map<string, Element[]>();
   #selectorFilter: (_: Element) => boolean;
@@ -84,7 +89,7 @@ class RovingTabIndex {
       wrap = false,
     } = options;
 
-    if (!['both', 'horizontal', 'vertical'].includes(direction)) {
+    if (!['both', 'grid', 'horizontal', 'vertical'].includes(direction)) {
       console.warn("Invalid direction option. Fallback: 'both'.");
       direction = 'both';
     }
@@ -104,18 +109,9 @@ class RovingTabIndex {
       noStart = false;
     }
 
-    if (selector !== '') {
-      if (typeof selector !== 'string' || !selector.trim()) {
-        console.warn('Invalid selector. Fallback: no selector string.');
-        selector = '';
-      } else {
-        try {
-          container.querySelector(selector);
-        } catch {
-          console.warn('Invalid selector. Fallback: no selector string.');
-          selector = '';
-        }
-      }
+    if (selector !== '' && (typeof selector !== 'string' || !selector.trim())) {
+      console.warn('Invalid selector. Fallback: no selector string.');
+      selector = '';
     }
 
     if (typeof typeahead !== 'boolean') {
@@ -149,12 +145,7 @@ class RovingTabIndex {
     this.#isDestroyed = true;
     this.#controller?.abort();
     this.#controller = null;
-
-    this.#focusables.forEach((focusable) => {
-      RovingTabIndex.#initialized.delete(focusable);
-      restoreAttributes([focusable]);
-    });
-
+    restoreAttributes([...this.#focusables]);
     this.#focusables.clear();
     this.#focusablesByFirstChar.clear();
   }
@@ -203,16 +194,17 @@ class RovingTabIndex {
 
     const { direction, typeahead, wrap } = this.#settings;
     const isBoth = direction === 'both';
+    const isGrid = direction === 'grid';
     const isHorizontal = direction === 'horizontal';
 
     if (
       ![
         'End',
         'Home',
-        ...(isBoth
+        ...(isBoth || isGrid
           ? ['ArrowLeft', 'ArrowUp']
           : [`Arrow${isHorizontal ? 'Left' : 'Up'}`]),
-        ...(isBoth
+        ...(isBoth || isGrid
           ? ['ArrowRight', 'ArrowDown']
           : [`Arrow${isHorizontal ? 'Right' : 'Down'}`]),
       ].includes(key)
@@ -232,9 +224,7 @@ class RovingTabIndex {
       return;
     }
 
-    const current = this.#getFocusables().filter((focusable) =>
-      this.#focusables.has(focusable),
-    );
+    const current = this.#getFocusables();
 
     if (!current.includes(active)) {
       return;
@@ -253,25 +243,61 @@ class RovingTabIndex {
         newIndex = 0;
         break;
       case 'ArrowLeft':
-      case 'ArrowUp': {
-        const rawIndex = currentIndex - 1;
-        newIndex = wrap ? rawIndex : Math.max(rawIndex, 0);
-        break;
-      }
+      case 'ArrowUp':
       case 'ArrowRight':
       case 'ArrowDown': {
-        const rawIndex = currentIndex + 1;
-        newIndex = wrap
-          ? rawIndex % current.length
-          : Math.min(rawIndex, current.length - 1);
+        if (['ArrowUp', 'ArrowDown'].includes(key) && isGrid) {
+          const rect = active.getBoundingClientRect();
+          const center = {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+          };
+          let distance = Infinity;
+          let nearest: Element | null = null;
+
+          for (const el of current) {
+            if (el === active) {
+              continue;
+            }
+
+            const r = el.getBoundingClientRect();
+            const c = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+
+            if (
+              (key === 'ArrowUp' &&
+                c.y < center.y &&
+                Math.abs(c.x - center.x) < Math.abs(c.y - center.y)) ||
+              (key === 'ArrowDown' &&
+                c.y > center.y &&
+                Math.abs(c.x - center.x) < Math.abs(c.y - center.y))
+            ) {
+              const d = (c.x - center.x) ** 2 + (c.y - center.y) ** 2;
+
+              if (d < distance) {
+                distance = d;
+                nearest = el;
+              }
+            }
+          }
+
+          newIndex = nearest ? target.indexOf(nearest) : currentIndex;
+        } else {
+          if (['ArrowLeft', 'ArrowUp'].includes(key)) {
+            const rawIndex = currentIndex - 1;
+            newIndex = wrap ? rawIndex : Math.max(rawIndex, 0);
+          } else {
+            const rawIndex = currentIndex + 1;
+            newIndex = wrap
+              ? rawIndex % current.length
+              : Math.min(rawIndex, current.length - 1);
+          }
+        }
+
         break;
       }
       default: {
         // Typeahead
-        const focusables = new Set(
-          this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [],
-        );
-        target = current.filter((focusable) => focusables.has(focusable));
+        target = this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [];
         const foundIndex = target.findIndex(
           (focusable) => current.indexOf(focusable) > currentIndex,
         );
@@ -289,18 +315,12 @@ class RovingTabIndex {
     // Removed
     for (const focusable of this.#focusables) {
       if (!current.has(focusable)) {
-        RovingTabIndex.#initialized.delete(focusable);
-        restoreAttributes([focusable]);
+        focusable.isConnected && restoreAttributes([focusable]);
         this.#focusables.delete(focusable);
-
-        for (const [key, focusables] of this.#focusablesByFirstChar) {
+        this.#focusablesByFirstChar.forEach((focusables) => {
           const index = focusables.indexOf(focusable);
-
-          if (index >= 0) {
-            focusables.splice(index, 1);
-            !focusables.length && this.#focusablesByFirstChar.delete(key);
-          }
-        }
+          index >= 0 && focusables.splice(index, 1);
+        });
       }
     }
 
@@ -313,8 +333,7 @@ class RovingTabIndex {
       }
 
       if (RovingTabIndex.#initialized.has(focusable)) {
-        // console.warn('Already initialized');
-        continue;
+        throw new TypeError('Already initialized');
       }
 
       this.#focusables.add(focusable);
@@ -371,7 +390,9 @@ class RovingTabIndex {
 
   #createSelectorFilter(): (element: Element) => boolean {
     const { selector } = this.#settings;
-    return (element) => !selector || element.matches(selector);
+    return (element) =>
+      !selector ||
+      [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
   #getFocusables(): Element[] {
