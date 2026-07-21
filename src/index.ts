@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.15
+ * @version 3.1.16
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -232,18 +232,18 @@ class RovingTabIndex {
       return;
     }
 
-    const candidates = this.#getFocusables().filter((focusable) =>
+    const current = this.#getFocusables().filter((focusable) =>
       this.#focusables.has(focusable),
     );
 
-    if (!candidates.includes(active)) {
+    if (!current.includes(active)) {
       return;
     }
 
     event.preventDefault();
-    const activeIndex = candidates.indexOf(active);
+    const currentIndex = current.indexOf(active);
     let newIndex: number;
-    let target = candidates;
+    let target = current;
 
     switch (key) {
       case 'End':
@@ -254,15 +254,16 @@ class RovingTabIndex {
         break;
       case 'ArrowLeft':
       case 'ArrowUp': {
-        const rawIndex = activeIndex - 1;
+        const rawIndex = currentIndex - 1;
         newIndex = wrap ? rawIndex : Math.max(rawIndex, 0);
         break;
       }
       case 'ArrowRight':
       case 'ArrowDown': {
-        const rawIndex = activeIndex + 1;
-        const length = target.length;
-        newIndex = wrap ? rawIndex % length : Math.min(rawIndex, length - 1);
+        const rawIndex = currentIndex + 1;
+        newIndex = wrap
+          ? rawIndex % current.length
+          : Math.min(rawIndex, current.length - 1);
         break;
       }
       default: {
@@ -270,11 +271,11 @@ class RovingTabIndex {
         const focusables = new Set(
           this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [],
         );
-        target = candidates.filter((focusable) => focusables.has(focusable));
-        const afterIndex = target.findIndex(
-          (focusable) => candidates.indexOf(focusable) > activeIndex,
+        target = current.filter((focusable) => focusables.has(focusable));
+        const foundIndex = target.findIndex(
+          (focusable) => current.indexOf(focusable) > currentIndex,
         );
-        newIndex = afterIndex >= 0 ? afterIndex : 0;
+        newIndex = foundIndex >= 0 ? foundIndex : 0;
       }
     }
 
