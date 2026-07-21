@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.16
+ * @version 3.1.17
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -232,18 +232,18 @@ class RovingTabIndex {
       return;
     }
 
-    const current = this.#getFocusables().filter((focusable) =>
+    const candidates = this.#getFocusables().filter((focusable) =>
       this.#focusables.has(focusable),
     );
 
-    if (!current.includes(active)) {
+    if (!candidates.includes(active)) {
       return;
     }
 
     event.preventDefault();
-    const currentIndex = current.indexOf(active);
+    const activeIndex = candidates.indexOf(active);
     let newIndex: number;
-    let target = current;
+    let target = candidates;
 
     switch (key) {
       case 'End':
@@ -254,16 +254,15 @@ class RovingTabIndex {
         break;
       case 'ArrowLeft':
       case 'ArrowUp': {
-        const rawIndex = currentIndex - 1;
+        const rawIndex = activeIndex - 1;
         newIndex = wrap ? rawIndex : Math.max(rawIndex, 0);
         break;
       }
       case 'ArrowRight':
       case 'ArrowDown': {
-        const rawIndex = currentIndex + 1;
-        newIndex = wrap
-          ? rawIndex % current.length
-          : Math.min(rawIndex, current.length - 1);
+        const rawIndex = activeIndex + 1;
+        const length = target.length;
+        newIndex = wrap ? rawIndex % length : Math.min(rawIndex, length - 1);
         break;
       }
       default: {
@@ -271,11 +270,11 @@ class RovingTabIndex {
         const focusables = new Set(
           this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [],
         );
-        target = current.filter((focusable) => focusables.has(focusable));
-        const foundIndex = target.findIndex(
-          (focusable) => current.indexOf(focusable) > currentIndex,
+        target = candidates.filter((focusable) => focusables.has(focusable));
+        const afterIndex = target.findIndex(
+          (focusable) => candidates.indexOf(focusable) > activeIndex,
         );
-        newIndex = foundIndex >= 0 ? foundIndex : 0;
+        newIndex = afterIndex >= 0 ? afterIndex : 0;
       }
     }
 
@@ -371,7 +370,9 @@ class RovingTabIndex {
 
   #createSelectorFilter(): (element: Element) => boolean {
     const { selector } = this.#settings;
-    return (element) => !selector || element.matches(selector);
+    return (element) =>
+      !selector ||
+      [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
   #getFocusables(): Element[] {
