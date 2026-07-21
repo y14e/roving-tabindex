@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.14
+ * @version 3.1.15
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -261,9 +261,8 @@ class RovingTabIndex {
       case 'ArrowRight':
       case 'ArrowDown': {
         const rawIndex = activeIndex + 1;
-        newIndex = wrap
-          ? rawIndex % candidates.length
-          : Math.min(rawIndex, candidates.length - 1);
+        const length = target.length;
+        newIndex = wrap ? rawIndex % length : Math.min(rawIndex, length - 1);
         break;
       }
       default: {
@@ -284,11 +283,11 @@ class RovingTabIndex {
   };
 
   #update(active?: Element | null): void {
-    const focusables = new Set(this.#getFocusables());
+    const current = new Set(this.#getFocusables());
 
     // Removed
     for (const focusable of this.#focusables) {
-      if (!focusables.has(focusable)) {
+      if (!current.has(focusable)) {
         RovingTabIndex.#initialized.delete(focusable);
         restoreAttributes([focusable]);
         this.#focusables.delete(focusable);
@@ -307,7 +306,7 @@ class RovingTabIndex {
     const { navigationOnly, noStart, typeahead } = this.#settings;
 
     // Added
-    for (const focusable of focusables) {
+    for (const focusable of current) {
       if (this.#focusables.has(focusable)) {
         continue;
       }
