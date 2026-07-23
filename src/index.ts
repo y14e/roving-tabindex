@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.17
+ * @version 3.1.18
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -152,7 +152,7 @@ class RovingTabIndex {
 
     this.#focusables.forEach((focusable) => {
       RovingTabIndex.#initialized.delete(focusable);
-      restoreAttributes([focusable]);
+      restoreAttributes(focusable);
     });
 
     this.#focusables.clear();
@@ -289,7 +289,7 @@ class RovingTabIndex {
     for (const focusable of this.#focusables) {
       if (!current.has(focusable)) {
         RovingTabIndex.#initialized.delete(focusable);
-        restoreAttributes([focusable]);
+        restoreAttributes(focusable);
         this.#focusables.delete(focusable);
 
         for (const [key, focusables] of this.#focusablesByFirstChar) {
@@ -320,7 +320,7 @@ class RovingTabIndex {
       RovingTabIndex.#initialized.add(focusable);
 
       if (!navigationOnly) {
-        saveAttributes([focusable], ['tabindex']);
+        saveAttributes(focusable, 'tabindex');
         focusable.setAttribute('tabindex', '-1');
       }
 
@@ -342,7 +342,7 @@ class RovingTabIndex {
 
       if (char) {
         keys.add(char);
-        saveAttributes([focusable], ['aria-keyshortcuts']);
+        saveAttributes(focusable, 'aria-keyshortcuts');
         addTokenToAttribute(focusable, 'aria-keyshortcuts', char, {
           caseInsensitive: true,
         });
