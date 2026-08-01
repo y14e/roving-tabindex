@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.18
+ * @version 3.1.19
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -226,24 +226,24 @@ class RovingTabIndex {
       }
     }
 
+    const candidates = this.#getFocusables().filter((focusable) =>
+      this.#focusables.has(focusable),
+    );
+
     const active = getActiveElement();
 
     if (!(active instanceof Element)) {
       return;
     }
 
-    const candidates = this.#getFocusables().filter((focusable) =>
-      this.#focusables.has(focusable),
-    );
-
     if (!candidates.includes(active)) {
       return;
     }
 
     event.preventDefault();
-    const activeIndex = candidates.indexOf(active);
     let newIndex: number;
-    let target = candidates;
+    const activeIndex = candidates.indexOf(active);
+    let focusables = candidates;
 
     switch (key) {
       case 'End':
@@ -261,24 +261,26 @@ class RovingTabIndex {
       case 'ArrowRight':
       case 'ArrowDown': {
         const rawIndex = activeIndex + 1;
-        const length = target.length;
+        const length = focusables.length;
         newIndex = wrap ? rawIndex % length : Math.min(rawIndex, length - 1);
         break;
       }
       default: {
         // Typeahead
-        const focusables = new Set(
+        const focusablesByFirstChar = new Set(
           this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [],
         );
-        target = candidates.filter((focusable) => focusables.has(focusable));
-        const afterIndex = target.findIndex(
+        focusables = candidates.filter((candidate) =>
+          focusablesByFirstChar.has(candidate),
+        );
+        const afterIndex = focusables.findIndex(
           (focusable) => candidates.indexOf(focusable) > activeIndex,
         );
         newIndex = afterIndex >= 0 ? afterIndex : 0;
       }
     }
 
-    const focusable = target.at(newIndex);
+    const focusable = focusables.at(newIndex);
     focusable && focusElement(focusable);
   };
 
