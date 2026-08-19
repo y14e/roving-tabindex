@@ -56,7 +56,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@y14e/attributes-utils": "^1.1.4",
-    "power-focusable": "^4.3.21"
+    "@y14e/attribute-util": "^2.0.0",
+    "power-focusable": "^4.3.23"
   }
 }

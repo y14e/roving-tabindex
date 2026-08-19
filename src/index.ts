@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.20
+ * @version 3.1.21
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -14,12 +14,8 @@
 // Imports
 // -----------------------------------------------------------------------------
 
-import {
-  addTokenToAttribute,
-  restoreAttributes,
-  saveAttributes,
-} from '@y14e/attributes-utils';
-import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
+import * as util from '@y14e/attribute-util';
+import * as pf from 'power-focusable';
 
 // -----------------------------------------------------------------------------
 // Types
@@ -157,7 +153,7 @@ class RovingTabIndex {
 
     this.#focusables.forEach((focusable) => {
       RovingTabIndex.#initialized.delete(focusable);
-      restoreAttributes(focusable);
+      util.restoreAttributes(focusable);
     });
 
     this.#focusables.clear();
@@ -165,7 +161,7 @@ class RovingTabIndex {
   }
 
   #initialize(): void {
-    this.#update(getActiveElement());
+    this.#update(pf.getActiveElement());
     this.#controller = new AbortController();
     const { signal } = this.#controller;
     this.#container.addEventListener('focusin', this.#onFocusIn, { signal });
@@ -235,7 +231,7 @@ class RovingTabIndex {
       this.#focusables.has(focusable),
     );
 
-    const active = getActiveElement();
+    const active = pf.getActiveElement();
 
     if (!(active instanceof Element)) {
       return;
@@ -286,7 +282,7 @@ class RovingTabIndex {
     }
 
     const focusable = focusables.at(newIndex);
-    focusable && focusElement(focusable);
+    focusable && pf.focusElement(focusable);
   };
 
   #update(active?: Element | null): void {
@@ -296,7 +292,7 @@ class RovingTabIndex {
     for (const focusable of this.#focusables) {
       if (!current.has(focusable)) {
         RovingTabIndex.#initialized.delete(focusable);
-        restoreAttributes(focusable);
+        util.restoreAttributes(focusable);
         this.#focusables.delete(focusable);
 
         for (const [key, focusables] of this.#focusablesByFirstChar) {
@@ -327,7 +323,7 @@ class RovingTabIndex {
       RovingTabIndex.#initialized.add(focusable);
 
       if (!navigationOnly) {
-        saveAttributes(focusable, 'tabindex');
+        util.saveAttributes(focusable, 'tabindex');
         focusable.setAttribute('tabindex', '-1');
       }
 
@@ -349,8 +345,8 @@ class RovingTabIndex {
 
       if (char) {
         keys.add(char);
-        saveAttributes(focusable, 'aria-keyshortcuts');
-        addTokenToAttribute(focusable, 'aria-keyshortcuts', char, {
+        util.saveAttributes(focusable, 'aria-keyshortcuts');
+        util.addAttributeToken(focusable, 'aria-keyshortcuts', char, {
           caseInsensitive: true,
         });
       }
@@ -383,7 +379,7 @@ class RovingTabIndex {
   }
 
   #getFocusables(): Element[] {
-    return getFocusables(this.#container, {
+    return pf.getFocusables(this.#container, {
       composed: true,
       filter: this.#selectorFilter,
       skipNegativeTabIndexCheck: !this.#settings.navigationOnly,
