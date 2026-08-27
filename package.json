@@ -55,6 +55,9 @@
   "engines": {
     "node": ">=18"
   },
+  "allowScripts": {
+    "esbuild": true
+  },
   "dependencies": {
     "@y14e/attribute-util": "^2.0.1",
     "power-focusable": "^4.3.25"
