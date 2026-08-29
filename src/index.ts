@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.22
+ * @version 3.1.23
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -14,7 +14,7 @@
 // Imports
 // -----------------------------------------------------------------------------
 
-import * as util from '@y14e/attribute-util';
+import * as utils from '@y14e/attribute-utils';
 import * as pf from 'power-focusable';
 
 // -----------------------------------------------------------------------------
@@ -153,7 +153,7 @@ class RovingTabIndex {
 
     this.#focusables.forEach((focusable) => {
       RovingTabIndex.#initialized.delete(focusable);
-      util.restoreAttributes(focusable);
+      utils.restoreAttributes(focusable);
     });
 
     this.#focusables.clear();
@@ -292,7 +292,7 @@ class RovingTabIndex {
     for (const focusable of this.#focusables) {
       if (!current.has(focusable)) {
         RovingTabIndex.#initialized.delete(focusable);
-        util.restoreAttributes(focusable);
+        utils.restoreAttributes(focusable);
         this.#focusables.delete(focusable);
 
         for (const [key, focusables] of this.#focusablesByFirstChar) {
@@ -323,7 +323,7 @@ class RovingTabIndex {
       RovingTabIndex.#initialized.add(focusable);
 
       if (!navigationOnly) {
-        util.saveAttributes(focusable, 'tabindex');
+        utils.saveAttributes(focusable, 'tabindex');
         focusable.setAttribute('tabindex', '-1');
       }
 
@@ -345,8 +345,8 @@ class RovingTabIndex {
 
       if (char) {
         keys.add(char);
-        util.saveAttributes(focusable, 'aria-keyshortcuts');
-        util.addAttributeToken(focusable, 'aria-keyshortcuts', char, {
+        utils.saveAttributes(focusable, 'aria-keyshortcuts');
+        utils.addAttributeToken(focusable, 'aria-keyshortcuts', char, {
           caseInsensitive: true,
         });
       }
