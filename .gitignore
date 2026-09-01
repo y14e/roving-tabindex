@@ -1,6 +1,4 @@
-node_modules
-dist
 .DS_Store
+dist
+node_modules
 *.log
-update_dependencies.bat
-src/index-grid.ts
