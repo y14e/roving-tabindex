@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.25
+ * @version 3.1.26
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -70,64 +70,7 @@ class RovingTabIndex {
     options: Partial<RovingTabIndexOptions> = {},
   ) {
     this.#container = container;
-    let {
-      direction = 'both',
-      navigationOnly = false,
-      noMemory = false,
-      noStart = false,
-      selector = '',
-      typeahead = false,
-      wrap = false,
-    } = options;
-
-    if (!['both', 'horizontal', 'vertical'].includes(direction)) {
-      console.warn("Invalid direction option. Fallback: 'both'.");
-      direction = 'both';
-    }
-
-    if (typeof navigationOnly !== 'boolean') {
-      console.warn('Invalid navigationOnly option. Fallback: false.');
-      navigationOnly = false;
-    }
-
-    if (typeof noMemory !== 'boolean') {
-      console.warn('Invalid noMemory option. Fallback: false.');
-      noMemory = false;
-    }
-
-    if (typeof noStart !== 'boolean') {
-      console.warn('Invalid noStart option. Fallback: false.');
-      noStart = false;
-    }
-
-    if (selector !== '') {
-      try {
-        document.querySelector(selector);
-      } catch {
-        console.warn('Invalid selector. Fallback: no selector string.');
-        selector = '';
-      }
-    }
-
-    if (typeof typeahead !== 'boolean') {
-      console.warn('Invalid typeahead option. Fallback: false.');
-      typeahead = false;
-    }
-
-    if (typeof wrap !== 'boolean') {
-      console.warn('Invalid wrap option. Fallback: false.');
-      wrap = false;
-    }
-
-    this.#settings = {
-      direction,
-      navigationOnly,
-      noMemory,
-      noStart,
-      selector,
-      typeahead,
-      wrap,
-    };
+    this.#settings = this.#resolveOptions(options);
     this.#selectorFilter = this.#createSelectorFilter();
     this.#initialize();
   }
@@ -375,5 +318,68 @@ class RovingTabIndex {
       skipNegativeTabIndexCheck: !this.#settings.navigationOnly,
       skipVisibilityCheck: true,
     });
+  }
+
+  #resolveOptions(
+    options: Partial<RovingTabIndexOptions>,
+  ): RovingTabIndexOptions {
+    let {
+      direction = 'both',
+      navigationOnly = false,
+      noMemory = false,
+      noStart = false,
+      selector = '',
+      typeahead = false,
+      wrap = false,
+    } = options;
+
+    if (!['both', 'horizontal', 'vertical'].includes(direction)) {
+      console.warn("Invalid direction option. Fallback: 'both'.");
+      direction = 'both';
+    }
+
+    if (typeof navigationOnly !== 'boolean') {
+      console.warn('Invalid navigationOnly option. Fallback: false.');
+      navigationOnly = false;
+    }
+
+    if (typeof noMemory !== 'boolean') {
+      console.warn('Invalid noMemory option. Fallback: false.');
+      noMemory = false;
+    }
+
+    if (typeof noStart !== 'boolean') {
+      console.warn('Invalid noStart option. Fallback: false.');
+      noStart = false;
+    }
+
+    if (selector !== '') {
+      try {
+        document.querySelector(selector);
+      } catch {
+        console.warn('Invalid selector. Fallback: no selector string.');
+        selector = '';
+      }
+    }
+
+    if (typeof typeahead !== 'boolean') {
+      console.warn('Invalid typeahead option. Fallback: false.');
+      typeahead = false;
+    }
+
+    if (typeof wrap !== 'boolean') {
+      console.warn('Invalid wrap option. Fallback: false.');
+      wrap = false;
+    }
+
+    return {
+      direction,
+      navigationOnly,
+      noMemory,
+      noStart,
+      selector,
+      typeahead,
+      wrap,
+    };
   }
 }
