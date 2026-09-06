@@ -1,28 +1,7 @@
 {
   "name": "@y14e/roving-tabindex",
-  "version": "3.1.26",
+  "version": "3.1.27",
   "description": "Lightweight roving tabindex utility with fully focus management",
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "prepublishOnly": "npm run build",
-    "lint": "tsc --noEmit"
-  },
   "keywords": [
     "a11y",
     "accessibility",
@@ -37,16 +16,41 @@
     "typescript",
     "utility"
   ],
-  "author": "Yusuke Kamiyamane",
-  "license": "MIT",
+  "homepage": "https://github.com/y14e/roving-tabindex#readme",
+  "bugs": {
+    "url": "https://github.com/y14e/roving-tabindex/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/y14e/roving-tabindex.git"
   },
-  "bugs": {
-    "url": "https://github.com/y14e/roving-tabindex/issues"
+  "license": "MIT",
+  "author": "Yusuke Kamiyamane",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
-  "homepage": "https://github.com/y14e/roving-tabindex#readme",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@y14e/attribute-utils": "^2.0.8",
+    "power-focusable": "^4.3.29"
+  },
   "devDependencies": {
     "bun-types": "latest",
     "tsup": "^8.0.0",
@@ -57,9 +61,5 @@
   },
   "allowScripts": {
     "esbuild": true
-  },
-  "dependencies": {
-    "@y14e/attribute-utils": "^2.0.6",
-    "power-focusable": "^4.3.28"
   }
 }
