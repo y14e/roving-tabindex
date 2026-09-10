@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.27
+ * @version 3.1.28
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -84,10 +84,10 @@ class RovingTabIndex {
     this.#controller?.abort();
     this.#controller = null;
 
-    this.#focusables.forEach((focusable) => {
+    for (const focusable of this.#focusables) {
       RovingTabIndex.#initialized.delete(focusable);
       utils.restoreAttributes(focusable);
-    });
+    }
 
     this.#focusables.clear();
     this.#focusablesByFirstChar.clear();
@@ -248,7 +248,6 @@ class RovingTabIndex {
       }
 
       if (RovingTabIndex.#initialized.has(focusable)) {
-        // console.warn('Already initialized');
         continue;
       }
 
@@ -284,18 +283,18 @@ class RovingTabIndex {
         });
       }
 
-      keys.forEach((key) => {
+      for (const key of keys) {
         const focusables = this.#focusablesByFirstChar.get(key) ?? [];
         focusables.push(focusable);
         this.#focusablesByFirstChar.set(key, focusables);
-      });
+      }
     }
 
     if (!navigationOnly) {
       if (active && this.#focusables.has(active)) {
-        this.#focusables.forEach((focusable) => {
+        for (const focusable of this.#focusables) {
           focusable.setAttribute('tabindex', focusable === active ? '0' : '-1');
-        });
+        }
       } else {
         [...this.#focusables].forEach((focusable, i) => {
           focusable.setAttribute('tabindex', i || noStart ? '-1' : '0');
@@ -332,6 +331,8 @@ class RovingTabIndex {
       typeahead = false,
       wrap = false,
     } = options;
+
+    direction = direction.toLowerCase() as 'both' | 'horizontal' | 'vertical';
 
     if (!['both', 'horizontal', 'vertical'].includes(direction)) {
       console.warn("Invalid direction option. Fallback: 'both'.");
