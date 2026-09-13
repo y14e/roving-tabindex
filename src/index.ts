@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.1.30
+ * @version 3.1.31
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -84,9 +84,9 @@ class RovingTabIndex {
     this.#controller?.abort();
     this.#controller = null;
 
-    for (const f of this.#focusables) {
-      RovingTabIndex.#initialized.delete(f);
-      utils.restoreAttributes(f);
+    for (const focusable of this.#focusables) {
+      RovingTabIndex.#initialized.delete(focusable);
+      utils.restoreAttributes(focusable);
     }
 
     this.#focusables.clear();
@@ -220,18 +220,18 @@ class RovingTabIndex {
     const current = new Set(this.#getFocusables());
 
     // Removed
-    for (const f of this.#focusables) {
-      if (!current.has(f)) {
-        RovingTabIndex.#initialized.delete(f);
-        utils.restoreAttributes(f);
-        this.#focusables.delete(f);
+    for (const focusable of this.#focusables) {
+      if (!current.has(focusable)) {
+        RovingTabIndex.#initialized.delete(focusable);
+        utils.restoreAttributes(focusable);
+        this.#focusables.delete(focusable);
 
-        for (const [k, g] of this.#focusablesByFirstChar) {
-          const index = g.indexOf(f);
+        for (const [key, focusables] of this.#focusablesByFirstChar) {
+          const index = focusables.indexOf(focusable);
 
           if (index >= 0) {
-            g.splice(index, 1);
-            !g.length && this.#focusablesByFirstChar.delete(k);
+            focusables.splice(index, 1);
+            !focusables.length && this.#focusablesByFirstChar.delete(key);
           }
         }
       }
@@ -240,21 +240,21 @@ class RovingTabIndex {
     const { navigationOnly, noStart, typeahead } = this.#settings;
 
     // Added
-    for (const f of current) {
-      if (this.#focusables.has(f)) {
+    for (const focusable of current) {
+      if (this.#focusables.has(focusable)) {
         continue;
       }
 
-      if (RovingTabIndex.#initialized.has(f)) {
+      if (RovingTabIndex.#initialized.has(focusable)) {
         continue;
       }
 
-      this.#focusables.add(f);
-      RovingTabIndex.#initialized.add(f);
+      this.#focusables.add(focusable);
+      RovingTabIndex.#initialized.add(focusable);
 
       if (!navigationOnly) {
-        utils.saveAttributes(f, 'tabindex');
-        f.setAttribute('tabindex', '-1');
+        utils.saveAttributes(focusable, 'tabindex');
+        focusable.setAttribute('tabindex', '-1');
       }
 
       if (!typeahead) {
@@ -262,8 +262,8 @@ class RovingTabIndex {
       }
 
       // Typeahead
-      const char = f.textContent?.trim()?.at(0)?.toUpperCase();
-      const value = f.ariaKeyShortcuts?.trim();
+      const char = focusable.textContent?.trim()?.at(0)?.toUpperCase();
+      const value = focusable.ariaKeyShortcuts?.trim();
       const keys = new Set(
         value
           ? value
@@ -275,27 +275,27 @@ class RovingTabIndex {
 
       if (char) {
         keys.add(char);
-        utils.saveAttributes(f, 'aria-keyshortcuts');
-        utils.addAttributeToken(f, 'aria-keyshortcuts', char, {
+        utils.saveAttributes(focusable, 'aria-keyshortcuts');
+        utils.addAttributeToken(focusable, 'aria-keyshortcuts', char, {
           caseInsensitive: true,
         });
       }
 
-      for (const k of keys) {
-        const focusables = this.#focusablesByFirstChar.get(k) ?? [];
-        focusables.push(f);
-        this.#focusablesByFirstChar.set(k, focusables);
+      for (const key of keys) {
+        const focusables = this.#focusablesByFirstChar.get(key) ?? [];
+        focusables.push(focusable);
+        this.#focusablesByFirstChar.set(key, focusables);
       }
     }
 
     if (!navigationOnly) {
       if (active && this.#focusables.has(active)) {
-        for (const f of this.#focusables) {
-          f.setAttribute('tabindex', f === active ? '0' : '-1');
+        for (const focusable of this.#focusables) {
+          focusable.setAttribute('tabindex', focusable === active ? '0' : '-1');
         }
       } else {
-        [...this.#focusables].forEach((f, i) => {
-          f.setAttribute('tabindex', i || noStart ? '-1' : '0');
+        [...this.#focusables].forEach((focusable, i) => {
+          focusable.setAttribute('tabindex', i || noStart ? '-1' : '0');
         });
       }
     }
