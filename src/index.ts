@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.2.0
+ * @version 3.3.0
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -35,7 +35,7 @@ export interface RovingTabIndexOptions {
   wrap: boolean;
 }
 
-type Direction = 'both' | 'horizontal' | 'vertical';
+type Direction = 'both' | 'grid' | 'horizontal' | 'vertical';
 
 // -----------------------------------------------------------------------------
 // APIs
@@ -50,8 +50,8 @@ export function createRovingTabIndex(
     return () => {};
   }
 
-  const roving = new RovingTabIndex(container, options);
-  return () => roving.destroy();
+  const rovingTabIndex = new RovingTabIndex(container, options);
+  return () => rovingTabIndex.destroy();
 }
 
 // -----------------------------------------------------------------------------
@@ -133,13 +133,19 @@ class RovingTabIndex {
       return;
     }
 
+    const { direction, typeahead, wrap = false } = this.#settings;
+    const isGrid = direction === 'grid';
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
-    if (altKey || ctrlKey || metaKey || shiftKey) {
+    if (
+      (!(isGrid && ['End', 'Home'].includes(key)) && ctrlKey) ||
+      altKey ||
+      metaKey ||
+      shiftKey
+    ) {
       return;
     }
 
-    const { direction, typeahead, wrap } = this.#settings;
     const isBoth = direction === 'both';
     const isHorizontal = direction === 'horizontal';
 
@@ -147,10 +153,10 @@ class RovingTabIndex {
       ![
         'End',
         'Home',
-        ...(isBoth
+        ...(isGrid || isBoth
           ? ['ArrowLeft', 'ArrowUp']
           : [`Arrow${isHorizontal ? 'Left' : 'Up'}`]),
-        ...(isBoth
+        ...(isGrid || isBoth
           ? ['ArrowRight', 'ArrowDown']
           : [`Arrow${isHorizontal ? 'Right' : 'Down'}`]),
       ].includes(key)
@@ -181,26 +187,47 @@ class RovingTabIndex {
     event.preventDefault();
     let newIndex: number;
     const activeIndex = candidates.indexOf(active);
-    let focusables = candidates;
+    let target = candidates;
 
     switch (key) {
       case 'End':
-        newIndex = -1;
-        break;
-      case 'Home':
-        newIndex = 0;
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp': {
-        const rawIndex = activeIndex - 1;
-        newIndex = wrap ? rawIndex : Math.max(rawIndex, 0);
+      case 'Home': {
+        const rawIndex = key === 'End' ? -1 : 0;
+
+        if (isGrid && !ctrlKey) {
+          const cell = this.#getCellsOfActiveRow().at(rawIndex);
+          newIndex = cell ? candidates.indexOf(cell) : activeIndex;
+        } else {
+          newIndex = rawIndex;
+        }
+
         break;
       }
+      case 'ArrowLeft':
+      case 'ArrowUp':
       case 'ArrowRight':
       case 'ArrowDown': {
-        const rawIndex = activeIndex + 1;
-        const length = focusables.length;
-        newIndex = wrap ? rawIndex % length : Math.min(rawIndex, length - 1);
+        if (['ArrowUp', 'ArrowDown'].includes(key) && isGrid) {
+          const cell = this.#getNextCell(key, wrap);
+          newIndex = cell ? candidates.indexOf(cell) : activeIndex;
+        } else {
+          if (isGrid) {
+            target = this.#getCellsOfActiveRow();
+          }
+
+          const isPrevious = ['ArrowLeft', 'ArrowUp'].includes(key);
+          const rawIndex =
+            (isGrid ? target.indexOf(active) : activeIndex) +
+            (isPrevious ? -1 : 1);
+          newIndex = isPrevious
+            ? wrap
+              ? rawIndex
+              : Math.max(rawIndex, 0)
+            : wrap
+              ? rawIndex % target.length
+              : Math.min(rawIndex, target.length - 1);
+        }
+
         break;
       }
       default: {
@@ -208,15 +235,15 @@ class RovingTabIndex {
         const focusablesByFirstChar = new Set(
           this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [],
         );
-        focusables = candidates.filter((c) => focusablesByFirstChar.has(c));
-        const afterIndex = focusables.findIndex(
+        target = candidates.filter((c) => focusablesByFirstChar.has(c));
+        const afterIndex = target.findIndex(
           (f) => candidates.indexOf(f) > activeIndex,
         );
         newIndex = afterIndex >= 0 ? afterIndex : 0;
       }
     }
 
-    const focusable = focusables.at(newIndex);
+    const focusable = target.at(newIndex);
     focusable && focusElement(focusable);
   };
 
@@ -312,6 +339,30 @@ class RovingTabIndex {
       [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
+  #getCellCoords(element: Element): { x: number; y: number } {
+    const rect = element.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
+  }
+
+  #getCellsOfActiveRow(): Element[] {
+    const active = getActiveElement();
+
+    if (!(active instanceof Element)) {
+      return [];
+    }
+
+    const activeRect = active.getBoundingClientRect();
+    return this.#getFocusables().filter((cell) => {
+      const cellRect = cell.getBoundingClientRect();
+      return (
+        cellRect.top < activeRect.bottom && cellRect.bottom > activeRect.top
+      );
+    });
+  }
+
   #getFocusables(): Element[] {
     return getFocusables(this.#container, {
       composed: true,
@@ -319,6 +370,76 @@ class RovingTabIndex {
       skipNegativeTabIndexCheck: !this.#settings.navigationOnly,
       skipVisibilityCheck: true,
     });
+  }
+
+  #getNextCell(key: string, wrap: boolean): Element | null {
+    const cells = this.#getFocusables();
+    const active = getActiveElement();
+
+    if (!(active instanceof Element)) {
+      return null;
+    }
+
+    const activeCoords = this.#getCellCoords(active);
+    let min = Infinity;
+    let result: Element | null = null;
+
+    for (const cell of cells) {
+      if (cell === active) {
+        continue;
+      }
+
+      const cellCoords = this.#getCellCoords(cell);
+      const distances = {
+        x: Math.abs(cellCoords.x - activeCoords.x),
+        y: Math.abs(cellCoords.y - activeCoords.y),
+      };
+
+      if (
+        (key === 'ArrowUp' &&
+          cellCoords.y < activeCoords.y &&
+          distances.x < distances.y) ||
+        (key === 'ArrowDown' &&
+          cellCoords.y > activeCoords.y &&
+          distances.x < distances.y)
+      ) {
+        const distance = distances.x ** 2 + distances.y ** 2;
+
+        if (distance < min) {
+          min = distance;
+          result = cell;
+        }
+      }
+    }
+
+    if (!result && wrap) {
+      let max = -Infinity;
+
+      for (const cell of cells) {
+        if (cell === active) {
+          continue;
+        }
+
+        const cellCoords = this.#getCellCoords(cell);
+
+        if (
+          Math.abs(cellCoords.x - activeCoords.x) <
+          cell.getBoundingClientRect().width / 2
+        ) {
+          const distance =
+            key === 'ArrowUp'
+              ? cellCoords.y - activeCoords.y
+              : activeCoords.y - cellCoords.y;
+
+          if (distance > max) {
+            max = distance;
+            result = cell;
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   #resolveOptions(
@@ -336,7 +457,7 @@ class RovingTabIndex {
 
     direction = direction.toLowerCase() as Direction;
 
-    if (!['both', 'horizontal', 'vertical'].includes(direction)) {
+    if (!['both', 'grid', 'horizontal', 'vertical'].includes(direction)) {
       console.warn("Invalid direction option. Fallback: 'both'.");
       direction = 'both';
     }

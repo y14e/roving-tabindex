@@ -13,11 +13,11 @@ npm i @y14e/roving-tabindex
 import { createRovingTabIndex } from '@y14e/roving-tabindex';
 
 // CDNs
-import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.2.0';
+import { createRovingTabIndex } from 'https://esm.sh/@y14e/roving-tabindex@3.3.0';
 // or
-import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.2.0/+esm';
+import { createRovingTabIndex } from 'https://cdn.jsdelivr.net/npm/@y14e/roving-tabindex@3.3.0/+esm';
 // or
-import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.2.0';
+import { createRovingTabIndex } from 'https://esm.unpkg.com/@y14e/roving-tabindex@3.3.0';
 ```
 
 ## 📦 APIs
@@ -47,7 +47,7 @@ interface RovingTabIndexOptions {
   wrap: boolean;           // default: false
 }
 
-type Direction = 'both' | 'horizontal' | 'vertical';
+type Direction = 'both' | 'grid' | 'horizontal' | 'vertical';
 ```
 
 ### `navigationOnly`
