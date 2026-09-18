@@ -339,8 +339,8 @@ class RovingTabIndex {
       [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
-  #getCellCoords(element: Element): { x: number; y: number } {
-    const rect = element.getBoundingClientRect();
+  #getCellCoords(cell: Element): { x: number; y: number } {
+    const rect = cell.getBoundingClientRect();
     return {
       x: rect.left + rect.width / 2,
       y: rect.top + rect.height / 2,
