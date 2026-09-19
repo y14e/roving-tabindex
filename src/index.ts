@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.3.1
+ * @version 3.3.2
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -35,7 +35,13 @@ export interface RovingTabIndexOptions {
   wrap: boolean;
 }
 
-type Direction = 'both' | 'grid' | 'horizontal' | 'vertical';
+type Direction = (typeof DIRECTIONS)[number];
+
+// -----------------------------------------------------------------------------
+// Constants
+// -----------------------------------------------------------------------------
+
+const DIRECTIONS = ['both', 'grid', 'horizontal', 'vertical'] as const;
 
 // -----------------------------------------------------------------------------
 // APIs
@@ -457,7 +463,7 @@ class RovingTabIndex {
 
     direction = direction.toLowerCase() as Direction;
 
-    if (!['both', 'grid', 'horizontal', 'vertical'].includes(direction)) {
+    if (!DIRECTIONS.includes(direction)) {
       console.warn("Invalid direction option. Fallback: 'both'.");
       direction = 'both';
     }
