@@ -3,7 +3,7 @@
  * Lightweight roving tabindex utility with fully focus management.
  * Designed for accessible menus, tabs, toolbars, and composite widgets.
  *
- * @version 3.3.2
+ * @version 3.3.3
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -346,7 +346,7 @@ class RovingTabIndex {
   }
 
   #getCellCoords(cell: Element): { x: number; y: number } {
-    const { height, left, top, width } = cell.getBoundingClientRect();
+    const { left, top, width, height } = cell.getBoundingClientRect();
     return {
       x: left + width / 2,
       y: top + height / 2,
