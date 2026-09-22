@@ -1,29 +1,9 @@
-/**
- * Roving Tabindex
- * Lightweight roving tabindex utility with fully focus management.
- * Designed for accessible menus, tabs, toolbars, and composite widgets.
- *
- * @version 3.3.3
- * @author Yusuke Kamiyamane
- * @license MIT
- * @copyright Copyright (c) Yusuke Kamiyamane
- * @see {@link https://github.com/y14e/roving-tabindex}
- */
-
-// -----------------------------------------------------------------------------
-// Imports
-// -----------------------------------------------------------------------------
-
 import {
   addAttributeToken,
   restoreAttributes,
   saveAttributes,
 } from '@y14e/attribute-utils';
 import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
-
-// -----------------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------------
 
 export interface RovingTabIndexOptions {
   direction: Direction;
@@ -37,15 +17,7 @@ export interface RovingTabIndexOptions {
 
 type Direction = (typeof DIRECTIONS)[number];
 
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
-
 const DIRECTIONS = ['both', 'grid', 'horizontal', 'vertical'] as const;
-
-// -----------------------------------------------------------------------------
-// APIs
-// -----------------------------------------------------------------------------
 
 export function createRovingTabIndex(
   container: Element,
@@ -59,10 +31,6 @@ export function createRovingTabIndex(
   const rovingTabIndex = new RovingTabIndex(container, options);
   return () => rovingTabIndex.destroy();
 }
-
-// -----------------------------------------------------------------------------
-// Core
-// -----------------------------------------------------------------------------
 
 class RovingTabIndex {
   static #initialized = new Set<Element>();
