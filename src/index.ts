@@ -226,18 +226,20 @@ class RovingTabIndex {
 
     // Removed
     for (const focusable of this.#focusables) {
-      if (!current.has(focusable)) {
-        RovingTabIndex.#initialized.delete(focusable);
-        restoreAttributes(focusable);
-        this.#focusables.delete(focusable);
+      if (current.has(focusable)) {
+        continue;
+      }
 
-        for (const [key, focusables] of this.#focusablesByFirstChar) {
-          const index = focusables.indexOf(focusable);
+      RovingTabIndex.#initialized.delete(focusable);
+      restoreAttributes(focusable);
+      this.#focusables.delete(focusable);
 
-          if (index >= 0) {
-            focusables.splice(index, 1);
-            !focusables.length && this.#focusablesByFirstChar.delete(key);
-          }
+      for (const [key, focusables] of this.#focusablesByFirstChar) {
+        const index = focusables.indexOf(focusable);
+
+        if (index >= 0) {
+          focusables.splice(index, 1);
+          !focusables.length && this.#focusablesByFirstChar.delete(key);
         }
       }
     }
@@ -315,10 +317,7 @@ class RovingTabIndex {
 
   #getCellCoords(cell: Element): { x: number; y: number } {
     const { left, top, width, height } = cell.getBoundingClientRect();
-    return {
-      x: left + width / 2,
-      y: top + height / 2,
-    };
+    return { x: left + width / 2, y: top + height / 2 };
   }
 
   #getCellsOfActiveRow(): Element[] {
