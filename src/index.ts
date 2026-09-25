@@ -28,8 +28,8 @@ export function createRovingTabIndex(
     return () => {};
   }
 
-  const rovingTabIndex = new RovingTabIndex(container, options);
-  return () => rovingTabIndex.destroy();
+  const instance = new RovingTabIndex(container, options);
+  return () => instance.destroy();
 }
 
 class RovingTabIndex {
@@ -428,7 +428,9 @@ class RovingTabIndex {
       wrap = false,
     } = options;
 
-    direction = direction.toLowerCase() as Direction;
+    if (typeof direction === 'string') {
+      direction = direction.toLowerCase() as Direction;
+    }
 
     if (!DIRECTIONS.includes(direction)) {
       console.warn("Invalid direction option. Fallback: 'both'.");
