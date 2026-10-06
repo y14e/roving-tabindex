@@ -171,10 +171,10 @@ class RovingTabIndex {
         if (isGrid && !ctrlKey) {
           const cell = this.#getCellsOfActiveRow().at(rawIndex);
           newIndex = cell ? candidates.indexOf(cell) : activeIndex;
-        } else {
-          newIndex = rawIndex;
+          break;
         }
 
+        newIndex = rawIndex;
         break;
       }
       case 'ArrowLeft':
@@ -184,24 +184,24 @@ class RovingTabIndex {
         if (['ArrowUp', 'ArrowDown'].includes(key) && isGrid) {
           const cell = this.#getNextCell(key, wrap);
           newIndex = cell ? candidates.indexOf(cell) : activeIndex;
-        } else {
-          if (isGrid) {
-            target = this.#getCellsOfActiveRow();
-          }
-
-          const isPrevious = ['ArrowLeft', 'ArrowUp'].includes(key);
-          const rawIndex =
-            (isGrid ? target.indexOf(active) : activeIndex) +
-            (isPrevious ? -1 : 1);
-          newIndex = isPrevious
-            ? wrap
-              ? rawIndex
-              : Math.max(rawIndex, 0)
-            : wrap
-              ? rawIndex % target.length
-              : Math.min(rawIndex, target.length - 1);
+          break;
         }
 
+        if (isGrid) {
+          target = this.#getCellsOfActiveRow();
+        }
+
+        const isPrevious = ['ArrowLeft', 'ArrowUp'].includes(key);
+        const rawIndex =
+          (isGrid ? target.indexOf(active) : activeIndex) +
+          (isPrevious ? -1 : 1);
+        newIndex = isPrevious
+          ? !wrap
+            ? Math.max(rawIndex, 0)
+            : rawIndex
+          : !wrap
+            ? Math.min(rawIndex, target.length - 1)
+            : rawIndex % target.length;
         break;
       }
       default: {
@@ -300,11 +300,13 @@ class RovingTabIndex {
         for (const focusable of this.#focusables) {
           focusable.setAttribute('tabindex', focusable === active ? '0' : '-1');
         }
-      } else {
-        [...this.#focusables].forEach((focusable, i) => {
-          focusable.setAttribute('tabindex', i || noStart ? '-1' : '0');
-        });
+
+        return;
       }
+
+      [...this.#focusables].forEach((focusable, i) => {
+        focusable.setAttribute('tabindex', !i && !noStart ? '0' : '-1');
+      });
     }
   }
 
