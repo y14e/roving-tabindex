@@ -73,40 +73,29 @@ class RovingTabIndex {
 
   #initialize(): void {
     this.#update(getActiveElement());
+    const container = this.#container as HTMLElement;
     this.#controller = new AbortController();
     const { signal } = this.#controller;
-    this.#container.addEventListener('focusin', this.#onFocusIn, { signal });
+    container.addEventListener('focusin', this.#onFocusIn, { signal });
     this.#settings.noMemory &&
-      this.#container.addEventListener('focusout', this.#onFocusOut, {
+      container.addEventListener('focusout', this.#onFocusOut, {
         signal,
       });
-    this.#container.addEventListener('keydown', this.#onKeyDown, { signal });
+    container.addEventListener('keydown', this.#onKeyDown, { signal });
   }
 
-  #onFocusIn = (event: Event): void => {
-    if (!(event instanceof FocusEvent)) {
-      return;
-    }
-
+  #onFocusIn = (event: FocusEvent): void => {
     const { target } = event;
     target instanceof Element && this.#update(target);
   };
 
-  #onFocusOut = (event: Event): void => {
-    if (!(event instanceof FocusEvent)) {
-      return;
-    }
-
+  #onFocusOut = (event: FocusEvent): void => {
     const target = event.relatedTarget;
     (!(target instanceof Element) || !this.#focusables.has(target)) &&
       this.#update();
   };
 
-  #onKeyDown = (event: Event): void => {
-    if (!(event instanceof KeyboardEvent)) {
-      return;
-    }
-
+  #onKeyDown = (event: KeyboardEvent): void => {
     const { direction, typeahead, wrap = false } = this.#settings;
     const isGrid = direction === 'grid';
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
