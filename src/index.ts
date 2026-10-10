@@ -4,24 +4,12 @@ import {
   saveAttributes,
 } from '@y14e/attribute-utils';
 import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
-
-export interface RovingTabIndexOptions {
-  direction: Direction;
-  navigationOnly: boolean;
-  noMemory: boolean;
-  noStart: boolean;
-  selector: string;
-  typeahead: boolean;
-  wrap: boolean;
-}
-
-type Direction = (typeof DIRECTIONS)[number];
-
-const DIRECTIONS = ['both', 'grid', 'horizontal', 'vertical'] as const;
+import { resolveOptions } from '@/options';
+import type { RovingTabIndexOptions as Options } from '@/types';
 
 export function createRovingTabIndex(
   container: Element,
-  options: Partial<RovingTabIndexOptions> = {},
+  options: Partial<Options> = {},
 ): () => void {
   if (!(container instanceof Element)) {
     console.warn('Invalid container element');
@@ -36,19 +24,16 @@ class RovingTabIndex {
   static #initialized = new Set<Element>();
 
   #container: Element;
-  #settings: RovingTabIndexOptions;
+  #settings: Options;
   #focusables = new Set<Element>();
   #focusablesByFirstChar = new Map<string, Element[]>();
   #selectorFilter: (_: Element) => boolean;
   #controller: AbortController | null = null;
   #isDestroyed = false;
 
-  constructor(
-    container: Element,
-    options: Partial<RovingTabIndexOptions> = {},
-  ) {
+  constructor(container: Element, options: Partial<Options> = {}) {
     this.#container = container;
-    this.#settings = this.#resolveOptions(options);
+    this.#settings = resolveOptions(options);
     this.#selectorFilter = this.#createSelectorFilter();
     this.#initialize();
   }
@@ -405,71 +390,6 @@ class RovingTabIndex {
 
     return result;
   }
-
-  #resolveOptions(
-    options: Partial<RovingTabIndexOptions>,
-  ): RovingTabIndexOptions {
-    let {
-      direction = 'both',
-      navigationOnly = false,
-      noMemory = false,
-      noStart = false,
-      selector = '',
-      typeahead = false,
-      wrap = false,
-    } = options;
-
-    if (typeof direction === 'string') {
-      direction = direction.toLowerCase() as Direction;
-    }
-
-    if (!DIRECTIONS.includes(direction)) {
-      console.warn("Invalid direction option. Fallback: 'both'.");
-      direction = 'both';
-    }
-
-    if (typeof navigationOnly !== 'boolean') {
-      console.warn('Invalid navigationOnly option. Fallback: false.');
-      navigationOnly = false;
-    }
-
-    if (typeof noMemory !== 'boolean') {
-      console.warn('Invalid noMemory option. Fallback: false.');
-      noMemory = false;
-    }
-
-    if (typeof noStart !== 'boolean') {
-      console.warn('Invalid noStart option. Fallback: false.');
-      noStart = false;
-    }
-
-    if (selector !== '') {
-      try {
-        document.querySelector(selector);
-      } catch {
-        console.warn('Invalid selector. Fallback: no selector string.');
-        selector = '';
-      }
-    }
-
-    if (typeof typeahead !== 'boolean') {
-      console.warn('Invalid typeahead option. Fallback: false.');
-      typeahead = false;
-    }
-
-    if (typeof wrap !== 'boolean') {
-      console.warn('Invalid wrap option. Fallback: false.');
-      wrap = false;
-    }
-
-    return {
-      direction,
-      navigationOnly,
-      noMemory,
-      noStart,
-      selector,
-      typeahead,
-      wrap,
-    };
-  }
 }
+
+export type { Options as RovingTabIndexOptions };
