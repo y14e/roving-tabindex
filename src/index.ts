@@ -4,9 +4,9 @@ import {
   saveAttributes,
 } from '@y14e/attribute-utils';
 import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
-import { getCellsOfActiveRow, getNextCell } from '@/grid';
-import { resolveOptions } from '@/options';
-import type { RovingTabIndexOptions as Options } from '@/types';
+import { getCellsOfActiveRow, getNextCell } from './grid';
+import { resolveOptions } from './options';
+import type { RovingTabIndexOptions as Options } from './types';
 
 export function createRovingTabIndex(
   container: Element,

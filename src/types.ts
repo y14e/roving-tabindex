@@ -1,4 +1,4 @@
-import type { DIRECTIONS } from '@/constants';
+import type { DIRECTIONS } from './constants';
 
 export interface RovingTabIndexOptions {
   direction: Direction;

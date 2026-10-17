@@ -1,5 +1,5 @@
-import { DIRECTIONS } from '@/constants';
-import type { Direction, RovingTabIndexOptions as Options } from '@/types';
+import { DIRECTIONS } from './constants';
+import type { Direction, RovingTabIndexOptions as Options } from './types';
 
 export function resolveOptions(options: Partial<Options>): Options {
   let {
