@@ -1,7 +1,7 @@
 import type { DIRECTIONS } from './constants';
 
 export interface RovingTabIndexOptions {
-  direction: Direction;
+  direction: Direction | DirectionProvider;
   navigationOnly: boolean;
   noMemory: boolean;
   noStart: boolean;
@@ -11,3 +11,5 @@ export interface RovingTabIndexOptions {
 }
 
 export type Direction = (typeof DIRECTIONS)[number];
+
+export type DirectionProvider = () => Direction;

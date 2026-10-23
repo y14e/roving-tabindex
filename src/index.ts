@@ -4,9 +4,10 @@ import {
   saveAttributes,
 } from '@y14e/attribute-utils';
 import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
+import { DIRECTIONS } from './constants';
 import { getCellsOfActiveRow, getNextCell } from './grid';
 import { resolveOptions } from './options';
-import type { RovingTabIndexOptions as Options } from './types';
+import type { Direction, RovingTabIndexOptions as Options } from './types';
 
 export function createRovingTabIndex(
   container: Element,
@@ -82,7 +83,7 @@ class RovingTabIndex {
   };
 
   #onKeyDown = (event: KeyboardEvent): void => {
-    const { direction, typeahead, wrap = false } = this.#settings;
+    const direction = this.#getDirection();
     const isGrid = direction === 'grid';
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
@@ -97,6 +98,7 @@ class RovingTabIndex {
 
     const isBoth = direction === 'both';
     const isHorizontal = direction === 'horizontal';
+    const { typeahead, wrap = false } = this.#settings;
 
     if (
       ![
@@ -294,6 +296,17 @@ class RovingTabIndex {
 
   #getCellsOfActiveRow() {
     return getCellsOfActiveRow(this.#getFocusables());
+  }
+
+  #getDirection(): Direction {
+    const { direction } = this.#settings;
+
+    if (typeof direction === 'string') {
+      return direction;
+    }
+
+    const d = direction();
+    return DIRECTIONS.includes(d) ? d : 'both';
   }
 
   #getFocusables(): Element[] {

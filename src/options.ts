@@ -16,7 +16,10 @@ export function resolveOptions(options: Partial<Options>): Options {
     direction = direction.toLowerCase() as Direction;
   }
 
-  if (!DIRECTIONS.includes(direction)) {
+  if (
+    (typeof direction === 'string' && !DIRECTIONS.includes(direction)) ||
+    (typeof direction === 'function' && !DIRECTIONS.includes(direction()))
+  ) {
     console.warn("Invalid direction option. Fallback: 'both'.");
     direction = 'both';
   }

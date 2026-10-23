@@ -38,16 +38,18 @@ const cleanup = createRovingTabIndex(container, options);
 
 ```ts
 interface RovingTabIndexOptions {
-  direction: Direction;    // default: 'both'
-  navigationOnly: boolean; // default: false
-  noMemory: boolean;       // default: false
-  noStart: boolean;        // default: false
-  selector: string;        // default: ''
-  typeahead: boolean;      // default: false
-  wrap: boolean;           // default: false
+  direction: Direction | DirectionProvider; // default: 'both'
+  navigationOnly: boolean;                  // default: false
+  noMemory: boolean;                        // default: false
+  noStart: boolean;                         // default: false
+  selector: string;                         // default: ''
+  typeahead: boolean;                       // default: false
+  wrap: boolean;                            // default: false
 }
 
 type Direction = 'both' | 'grid' | 'horizontal' | 'vertical';
+
+type DirectionProvider = () => Direction;
 ```
 
 ### `navigationOnly`
