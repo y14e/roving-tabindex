@@ -54,7 +54,7 @@ type DirectionProvider = () => Direction;
 
 ### `direction`
 
-Specifies allowed arrow key navigation directions. Pass a string for fixed behavior or a `DirectionProvider` function to compute directions dynamically at runtime, for example based on the current layout or screen orientation.
+Specifies allowed arrow key navigation directions. Pass a string for fixed behavior or a `DirectionProvider` function to compute directions dynamically at runtime (e.g., based on layout or orientation).
 
 ### `navigationOnly`
 
