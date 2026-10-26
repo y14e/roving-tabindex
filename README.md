@@ -52,6 +52,10 @@ type Direction = 'both' | 'grid' | 'horizontal' | 'vertical';
 type DirectionProvider = () => Direction;
 ```
 
+### `direction`
+
+Specifies allowed arrow key navigation directions. Pass a string for fixed behavior or a `DirectionProvider`　function to compute directions dynamically at runtime, for example based on the current layout or screen orientation.
+
 ### `navigationOnly`
 
 If `true`, enables keyboard navigation without modifying `tabindex`. Useful for widgets like accordions where all items should remain tabbable while still supporting arrow key navigation.
