@@ -124,7 +124,6 @@ class RovingTabIndex {
     const candidates = this.#getFocusables().filter((f) =>
       this.#focusables.has(f),
     );
-
     const active = getActiveElement();
 
     if (!(active instanceof Element)) {
