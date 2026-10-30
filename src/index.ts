@@ -1,8 +1,4 @@
-import {
-  addAttributeToken,
-  restoreAttributes,
-  saveAttributes,
-} from '@y14e/attribute-utils';
+import { addAttributeToken, restoreAttributes, saveAttributes } from '@y14e/attribute-utils';
 import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
 import { DIRECTIONS } from './constants';
 import { getCellsOfActiveRow, getNextCell } from './grid';
@@ -64,10 +60,7 @@ class RovingTabIndex {
     this.#controller = new AbortController();
     const { signal } = this.#controller;
     container.addEventListener('focusin', this.#onFocusIn, { signal });
-    this.#settings.noMemory &&
-      container.addEventListener('focusout', this.#onFocusOut, {
-        signal,
-      });
+    this.#settings.noMemory && container.addEventListener('focusout', this.#onFocusOut, { signal });
     container.addEventListener('keydown', this.#onKeyDown, { signal });
   }
 
@@ -78,8 +71,7 @@ class RovingTabIndex {
 
   #onFocusOut = (event: FocusEvent): void => {
     const target = event.relatedTarget;
-    (!(target instanceof Element) || !this.#focusables.has(target)) &&
-      this.#update();
+    (!(target instanceof Element) || !this.#focusables.has(target)) && this.#update();
   };
 
   #onKeyDown = (event: KeyboardEvent): void => {
@@ -87,12 +79,7 @@ class RovingTabIndex {
     const isGrid = direction === 'grid';
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
 
-    if (
-      (!(isGrid && ['End', 'Home'].includes(key)) && ctrlKey) ||
-      altKey ||
-      metaKey ||
-      shiftKey
-    ) {
+    if ((!(isGrid && ['End', 'Home'].includes(key)) && ctrlKey) || altKey || metaKey || shiftKey) {
       return;
     }
 
@@ -104,26 +91,18 @@ class RovingTabIndex {
       ![
         'End',
         'Home',
-        ...(isGrid || isBoth
-          ? ['ArrowLeft', 'ArrowUp']
-          : [`Arrow${isHorizontal ? 'Left' : 'Up'}`]),
+        ...(isGrid || isBoth ? ['ArrowLeft', 'ArrowUp'] : [`Arrow${isHorizontal ? 'Left' : 'Up'}`]),
         ...(isGrid || isBoth
           ? ['ArrowRight', 'ArrowDown']
           : [`Arrow${isHorizontal ? 'Right' : 'Down'}`]),
       ].includes(key)
     ) {
-      if (
-        !typeahead ||
-        !/^\S$/i.test(key) ||
-        !this.#focusablesByFirstChar.has(key.toUpperCase())
-      ) {
+      if (!typeahead || !/^\S$/i.test(key) || !this.#focusablesByFirstChar.has(key.toUpperCase())) {
         return;
       }
     }
 
-    const candidates = this.#getFocusables().filter((f) =>
-      this.#focusables.has(f),
-    );
+    const candidates = this.#getFocusables().filter((f) => this.#focusables.has(f));
     const active = getActiveElement();
 
     if (!(active instanceof Element)) {
@@ -168,9 +147,7 @@ class RovingTabIndex {
         }
 
         const isPrevious = ['ArrowLeft', 'ArrowUp'].includes(key);
-        const rawIndex =
-          (isGrid ? target.indexOf(active) : activeIndex) +
-          (isPrevious ? -1 : 1);
+        const rawIndex = (isGrid ? target.indexOf(active) : activeIndex) + (isPrevious ? -1 : 1);
         newIndex = isPrevious
           ? !wrap
             ? Math.max(rawIndex, 0)
@@ -186,9 +163,7 @@ class RovingTabIndex {
           this.#focusablesByFirstChar.get(key.toUpperCase()) ?? [],
         );
         target = candidates.filter((c) => focusablesByFirstChar.has(c));
-        const afterIndex = target.findIndex(
-          (f) => candidates.indexOf(f) > activeIndex,
-        );
+        const afterIndex = target.findIndex((f) => candidates.indexOf(f) > activeIndex);
         newIndex = afterIndex >= 0 ? afterIndex : 0;
       }
     }
@@ -259,9 +234,7 @@ class RovingTabIndex {
       if (char) {
         keys.add(char);
         saveAttributes(focusable, 'aria-keyshortcuts');
-        addAttributeToken(focusable, 'aria-keyshortcuts', char, {
-          caseInsensitive: true,
-        });
+        addAttributeToken(focusable, 'aria-keyshortcuts', char, { caseInsensitive: true });
       }
 
       for (const key of keys) {
@@ -289,8 +262,7 @@ class RovingTabIndex {
   #createSelectorFilter(): (element: Element) => boolean {
     const { selector } = this.#settings;
     return (element) =>
-      !selector ||
-      [...this.#container.querySelectorAll(selector)].includes(element);
+      !selector || [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
   #getCellsOfActiveRow() {

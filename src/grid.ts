@@ -19,11 +19,7 @@ export function getCellsOfActiveRow(cells: Element[]): Element[] {
   });
 }
 
-export function getNextCell(
-  cells: Element[],
-  key: string,
-  wrap: boolean,
-): Element | null {
+export function getNextCell(cells: Element[], key: string, wrap: boolean): Element | null {
   const active = getActiveElement();
 
   if (!(active instanceof Element)) {
@@ -46,12 +42,8 @@ export function getNextCell(
     };
 
     if (
-      (key === 'ArrowUp' &&
-        cellCoords.y < activeCoords.y &&
-        distances.x < distances.y) ||
-      (key === 'ArrowDown' &&
-        cellCoords.y > activeCoords.y &&
-        distances.x < distances.y)
+      (key === 'ArrowUp' && cellCoords.y < activeCoords.y && distances.x < distances.y) ||
+      (key === 'ArrowDown' && cellCoords.y > activeCoords.y && distances.x < distances.y)
     ) {
       const distance = distances.x ** 2 + distances.y ** 2;
 
@@ -72,14 +64,9 @@ export function getNextCell(
 
       const cellCoords = getCellCoords(cell);
 
-      if (
-        Math.abs(cellCoords.x - activeCoords.x) <
-        cell.getBoundingClientRect().width / 2
-      ) {
+      if (Math.abs(cellCoords.x - activeCoords.x) < cell.getBoundingClientRect().width / 2) {
         const distance =
-          key === 'ArrowUp'
-            ? cellCoords.y - activeCoords.y
-            : activeCoords.y - cellCoords.y;
+          key === 'ArrowUp' ? cellCoords.y - activeCoords.y : activeCoords.y - cellCoords.y;
 
         if (distance > max) {
           max = distance;

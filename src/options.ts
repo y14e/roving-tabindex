@@ -58,13 +58,5 @@ export function resolveOptions(options: Partial<Options>): Options {
     wrap = false;
   }
 
-  return {
-    direction,
-    navigationOnly,
-    noMemory,
-    noStart,
-    selector,
-    typeahead,
-    wrap,
-  };
+  return { direction, navigationOnly, noMemory, noStart, selector, typeahead, wrap };
 }
