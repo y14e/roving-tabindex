@@ -84,17 +84,16 @@ class RovingTabIndex {
     }
 
     const isBoth = direction === 'both';
+    const is2D = isGrid || isBoth;
     const isHorizontal = direction === 'horizontal';
-    const { typeahead, wrap = false } = this.#settings;
+    const { typeahead, wrap } = this.#settings;
 
     if (
       ![
         'End',
         'Home',
-        ...(isGrid || isBoth ? ['ArrowLeft', 'ArrowUp'] : [`Arrow${isHorizontal ? 'Left' : 'Up'}`]),
-        ...(isGrid || isBoth
-          ? ['ArrowRight', 'ArrowDown']
-          : [`Arrow${isHorizontal ? 'Right' : 'Down'}`]),
+        ...(is2D ? ['ArrowLeft', 'ArrowUp'] : [`Arrow${isHorizontal ? 'Left' : 'Up'}`]),
+        ...(is2D ? ['ArrowRight', 'ArrowDown'] : [`Arrow${isHorizontal ? 'Right' : 'Down'}`]),
       ].includes(key)
     ) {
       if (!typeahead || !/^\S$/i.test(key) || !this.#focusablesByFirstChar.has(key.toUpperCase())) {
