@@ -1,7 +1,7 @@
 import { addAttributeToken, restoreAttributes, saveAttributes } from '@y14e/attribute-utils';
 import { focusElement, getActiveElement, getFocusables } from 'power-focusable';
 import { DIRECTIONS } from './constants';
-import { getCellsOfActiveRow, getNextCell } from './grid';
+import { getNextCell, getSameRowCells } from './grid';
 import { resolveOptions } from './options';
 import type { Direction, RovingTabIndexOptions as Options } from './types';
 
@@ -123,7 +123,7 @@ class RovingTabIndex {
         const rawIndex = key === 'End' ? -1 : 0;
 
         if (isGrid && !ctrlKey) {
-          const cell = this.#getCellsOfActiveRow().at(rawIndex);
+          const cell = this.#getSameRowCells().at(rawIndex);
           newIndex = cell ? candidates.indexOf(cell) : activeIndex;
           break;
         }
@@ -142,7 +142,7 @@ class RovingTabIndex {
         }
 
         if (isGrid) {
-          target = this.#getCellsOfActiveRow();
+          target = this.#getSameRowCells();
         }
 
         const isPrevious = ['ArrowLeft', 'ArrowUp'].includes(key);
@@ -264,8 +264,9 @@ class RovingTabIndex {
       !selector || [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
-  #getCellsOfActiveRow() {
-    return getCellsOfActiveRow(this.#getFocusables());
+  #getSameRowCells(): Element[] {
+    const active = getActiveElement();
+    return active instanceof Element ? getSameRowCells(this.#getFocusables(), active) : [];
   }
 
   #getDirection(): Direction {
