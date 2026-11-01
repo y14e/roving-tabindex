@@ -264,11 +264,6 @@ class RovingTabIndex {
       !selector || [...this.#container.querySelectorAll(selector)].includes(element);
   }
 
-  #getSameRowCells(): Element[] {
-    const active = getActiveElement();
-    return active instanceof Element ? getSameRowCells(this.#getFocusables(), active) : [];
-  }
-
   #getDirection(): Direction {
     const { direction } = this.#settings;
 
@@ -291,6 +286,11 @@ class RovingTabIndex {
 
   #getNextCell(key: string, wrap: boolean): Element | null {
     return getNextCell(this.#getFocusables(), key, wrap);
+  }
+
+  #getSameRowCells(): Element[] {
+    const active = getActiveElement();
+    return active instanceof Element ? getSameRowCells(this.#getFocusables(), active) : [];
   }
 }
 
