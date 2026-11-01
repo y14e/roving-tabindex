@@ -147,13 +147,14 @@ class RovingTabIndex {
 
         const isPrevious = ['ArrowLeft', 'ArrowUp'].includes(key);
         const rawIndex = (isGrid ? target.indexOf(active) : activeIndex) + (isPrevious ? -1 : 1);
+        const { length } = target;
         newIndex = isPrevious
           ? !wrap
             ? Math.max(rawIndex, 0)
             : rawIndex
           : !wrap
-            ? Math.min(rawIndex, target.length - 1)
-            : rawIndex % target.length;
+            ? Math.min(rawIndex, length - 1)
+            : rawIndex % length;
         break;
       }
       default: {
