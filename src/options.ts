@@ -1,5 +1,5 @@
 import { DIRECTIONS } from './constants';
-import type { Direction, RovingTabIndexOptions as Options } from './types';
+import type { RovingTabIndexOptions as Options } from './types';
 
 export function resolveOptions(options: Partial<Options>): Options {
   let {
@@ -13,7 +13,12 @@ export function resolveOptions(options: Partial<Options>): Options {
   } = options;
 
   if (typeof direction === 'string') {
-    direction = direction.toLowerCase() as Direction;
+    const lower = direction.toLowerCase();
+    const found = DIRECTIONS.find((d) => d === lower);
+
+    if (found) {
+      direction = found;
+    }
   }
 
   if (

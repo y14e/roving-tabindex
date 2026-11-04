@@ -56,7 +56,7 @@ class RovingTabIndex {
 
   #initialize(): void {
     this.#update(getActiveElement());
-    const container = this.#container as HTMLElement;
+    const container = this.#container;
     this.#controller = new AbortController();
     const { signal } = this.#controller;
     container.addEventListener('focusin', this.#onFocusIn, { signal });
@@ -64,17 +64,29 @@ class RovingTabIndex {
     container.addEventListener('keydown', this.#onKeyDown, { signal });
   }
 
-  #onFocusIn = (event: FocusEvent): void => {
+  #onFocusIn = (event: Event): void => {
+    if (!(event instanceof FocusEvent)) {
+      return;
+    }
+
     const { target } = event;
     target instanceof Element && this.#update(target);
   };
 
-  #onFocusOut = (event: FocusEvent): void => {
+  #onFocusOut = (event: Event): void => {
+    if (!(event instanceof FocusEvent)) {
+      return;
+    }
+
     const target = event.relatedTarget;
     (!(target instanceof Element) || !this.#focusables.has(target)) && this.#update();
   };
 
-  #onKeyDown = (event: KeyboardEvent): void => {
+  #onKeyDown = (event: Event): void => {
+    if (!(event instanceof KeyboardEvent)) {
+      return;
+    }
+
     const direction = this.#getDirection();
     const isGrid = direction === 'grid';
     const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
