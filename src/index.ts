@@ -216,6 +216,7 @@ class RovingTabIndex {
       }
 
       if (RovingTabIndex.#initialized.has(focusable)) {
+        console.warn('Skipping duplicate initialization:', focusable);
         continue;
       }
 
