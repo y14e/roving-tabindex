@@ -67,6 +67,7 @@ export function getNextCell(cells: Element[], key: string, wrap: boolean): Eleme
 
 export function getSameRowCells(cells: Element[], current: Element): Element[] {
   const currentRect = current.getBoundingClientRect();
+
   return cells.filter((cell) => {
     const cellRect = cell.getBoundingClientRect();
     return cellRect.top < currentRect.bottom && cellRect.bottom > currentRect.top;
