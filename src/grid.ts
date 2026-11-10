@@ -1,8 +1,8 @@
 import { getActiveElement } from 'power-focusable';
 
-function getCellCenter(cell: Element): { x: number; y: number } {
-  const { left, top, width, height } = cell.getBoundingClientRect();
-  return { x: left + width / 2, y: top + height / 2 };
+function getCellRect(cell: Element): { w: number; x: number; y: number } {
+  const { x, y, width: w, height: h } = cell.getBoundingClientRect();
+  return { w, x: x + w / 2, y: y + h / 2 };
 }
 
 export function getNextCell(cells: Element[], key: string, wrap: boolean): Element | null {
@@ -12,7 +12,7 @@ export function getNextCell(cells: Element[], key: string, wrap: boolean): Eleme
     return null;
   }
 
-  const activeCenter = getCellCenter(active);
+  const { x: ax, y: ay } = getCellRect(active);
   let min = Infinity;
   let result: Element | null = null;
 
@@ -21,17 +21,11 @@ export function getNextCell(cells: Element[], key: string, wrap: boolean): Eleme
       continue;
     }
 
-    const cellCenter = getCellCenter(cell);
-    const distances = {
-      x: Math.abs(cellCenter.x - activeCenter.x),
-      y: Math.abs(cellCenter.y - activeCenter.y),
-    };
+    const { x: cx, y: cy } = getCellRect(cell);
+    const [dx, dy] = [Math.abs(cx - ax), Math.abs(cy - ay)];
 
-    if (
-      (key === 'ArrowUp' && cellCenter.y < activeCenter.y && distances.x < distances.y) ||
-      (key === 'ArrowDown' && cellCenter.y > activeCenter.y && distances.x < distances.y)
-    ) {
-      const distance = distances.x ** 2 + distances.y ** 2;
+    if ((key === 'ArrowUp' && cy < ay && dx < dy) || (key === 'ArrowDown' && cy > ay && dx < dy)) {
+      const distance = dx ** 2 + dy ** 2;
 
       if (distance < min) {
         min = distance;
@@ -48,11 +42,10 @@ export function getNextCell(cells: Element[], key: string, wrap: boolean): Eleme
         continue;
       }
 
-      const cellCenter = getCellCenter(cell);
+      const { x: cx, y: cy, w: cw } = getCellRect(cell);
 
-      if (Math.abs(cellCenter.x - activeCenter.x) < cell.getBoundingClientRect().width / 2) {
-        const distance =
-          key === 'ArrowUp' ? cellCenter.y - activeCenter.y : activeCenter.y - cellCenter.y;
+      if (Math.abs(cx - ax) < cw / 2) {
+        const distance = key === 'ArrowUp' ? cy - ay : ay - cy;
 
         if (distance > max) {
           max = distance;
@@ -65,11 +58,11 @@ export function getNextCell(cells: Element[], key: string, wrap: boolean): Eleme
   return result;
 }
 
-export function getSameRowCells(cells: Element[], current: Element): Element[] {
-  const currentRect = current.getBoundingClientRect();
+export function getSameRowCells(cells: Element[], anchor: Element): Element[] {
+  const { y: ay, bottom: ab } = anchor.getBoundingClientRect();
 
   return cells.filter((cell) => {
-    const cellRect = cell.getBoundingClientRect();
-    return cellRect.top < currentRect.bottom && cellRect.bottom > currentRect.top;
+    const { y: cy, bottom: cb } = cell.getBoundingClientRect();
+    return cy < ab && cb > ay;
   });
 }
