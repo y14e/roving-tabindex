@@ -5,7 +5,11 @@ function getCellRect(cell: Element): { w: number; x: number; y: number } {
   return { w, x: x + w / 2, y: y + h / 2 };
 }
 
-export function getNextCell(cells: Element[], key: string, wrap: boolean): Element | null {
+export function getNextCell(
+  cells: ReadonlyArray<Element>,
+  key: string,
+  wrap: boolean,
+): Element | null {
   const active = getActiveElement();
 
   if (!(active instanceof Element)) {
@@ -58,7 +62,7 @@ export function getNextCell(cells: Element[], key: string, wrap: boolean): Eleme
   return result;
 }
 
-export function getSameRowCells(cells: Element[], anchor: Element): Element[] {
+export function getSameRowCells(cells: ReadonlyArray<Element>, anchor: Element): Element[] {
   const { y: ay, bottom: ab } = anchor.getBoundingClientRect();
 
   return cells.filter((cell) => {
