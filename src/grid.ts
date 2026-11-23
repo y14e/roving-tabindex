@@ -8,7 +8,7 @@ function getCellRect(cell: Element): { w: number; x: number; y: number } {
 export function getNextCell(
   cells: ReadonlyArray<Element>,
   key: string,
-  wrap: boolean,
+  isWrap: boolean,
 ): Element | null {
   const active = getActiveElement();
 
@@ -38,7 +38,7 @@ export function getNextCell(
     }
   }
 
-  if (!result && wrap) {
+  if (!result && isWrap) {
     let max = -Infinity;
 
     for (const cell of cells) {

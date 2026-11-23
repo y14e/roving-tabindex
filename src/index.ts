@@ -298,8 +298,8 @@ class RovingTabIndex {
     });
   }
 
-  #getNextCell(key: string, wrap: boolean): Element | null {
-    return getNextCell(this.#getFocusables(), key, wrap);
+  #getNextCell(key: string, isWrap: boolean): Element | null {
+    return getNextCell(this.#getFocusables(), key, isWrap);
   }
 
   #getSameRowCells(): Element[] {
